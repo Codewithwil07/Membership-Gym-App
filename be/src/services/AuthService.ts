@@ -5,14 +5,18 @@ import bcrypt from "bcrypt";
 export class AuthService {
   constructor(private repo: userRepository) {}
 
-  async Register(register: RegisterDTO) {
-    const existing = await this.repo.findByEmail(register.email);
+  async Register(user: userDTO) {
+    const existing = await this.repo.findByEmail(user.email);
     if (existing) throw new Error("Email sudah digunakan");
 
-    const hasehed = await bcrypt.hash(register.password, 10);
-    register.password = hasehed;
+    const hasehed = await bcrypt.hash(user.password, 10);
+    user.password = hasehed;
 
-    await this.repo.create(register);
+    await this.repo.create(user);
     return { message: "Registrasi Berhasil" };
+  }
+
+  async Login(login: ){
+
   }
 }
