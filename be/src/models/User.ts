@@ -1,11 +1,9 @@
 // models/User.ts
 
-// ✅ Untuk autentikasi login
 export class LoginDTO {
   constructor(public email: string, public password: string) {}
 }
 
-// ✅ Untuk registrasi user baru
 export class RegisterDTO {
   constructor(
     public username: string,
@@ -15,7 +13,6 @@ export class RegisterDTO {
   ) {}
 }
 
-// ✅ Untuk tampilan profil lengkap (misalnya untuk admin)
 export class UserProfile {
   constructor(
     public id: number,

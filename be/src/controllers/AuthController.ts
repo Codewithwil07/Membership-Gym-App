@@ -13,8 +13,8 @@ export class AuthController {
       const result = await service.Register(user);
       res.status(201).json({
         success: true,
-        message: "Login successful",
-        data: result,
+        message: "Registrasi Berhasil",
+        data: result || null,
       });
     } catch (error: any) {
       res
@@ -28,7 +28,17 @@ export class AuthController {
       const { email, password } = req.body;
       const user = new LoginDTO(email, password);
       const result = await service.Login(user);
-      res.status(200).json();
-    } catch (error) {}
+      res.status(200).json({
+        succes: true,
+        message: "Login Berhasil",
+        data: result || null,
+      });
+    } catch (error: any) {
+      res.status(error.status || 500).json({
+        succes: false,
+        message: error.message || "Terjadi kesalahan",
+      });
+    }
+    
   }
 }
