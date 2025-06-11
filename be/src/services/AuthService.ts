@@ -1,5 +1,5 @@
-import { LoginDTO, RegisterDTO } from "../models/User";
-import { userRepository } from "../repositories/UserRepository";
+import { LoginDTO, RegisterDTO } from "../models/user";
+import { userRepository } from "../repositories/userRepository";
 import bcrypt from "bcrypt";
 
 export class AuthService {
@@ -31,7 +31,7 @@ export class AuthService {
 
     return {
       id: existing.id,
-      email: existing.email,
+      email: existing.email,      
       username: existing.username,
     };
   }

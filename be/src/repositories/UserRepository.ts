@@ -1,11 +1,27 @@
 import db from "../config/db";
-import { RegisterDTO } from "../models/User";
+import { RegisterDTO } from "../models/user";
 
 export class userRepository {
   async findByEmail(email: string) {
     const [rows]: any = await db.query("SELECT * FROM users WHERE email = ?", [
       email,
     ]);
+    return rows[0];
+  }
+
+  async findByUsername(username: string) {
+    const [rows]: any = await db.query(
+      "SELECT * FROM users WHERE username = ?",
+      [username]
+    );
+    return rows[0];
+  }
+
+  async getById(id: number) {
+    const [rows]: any = await db.query(
+      "SELECT id, username, email, no_hp FROM users WHERE id = ?",
+      [id]
+    );
     return rows[0];
   }
 
