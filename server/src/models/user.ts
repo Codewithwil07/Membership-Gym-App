@@ -1,32 +1,36 @@
-// models/User.ts
-
-export class LoginDTO {
-  constructor(public email: string, public password: string) {}
+export interface RegisterDTO {
+  username: string;
+  email: string;
+  no_hp: string;
+  password: string;
 }
 
-export class RegisterDTO {
-  constructor(
-    public username: string,
-    public email: string,
-    public no_hp: string,
-    public password: string,
-  ) {}
+export interface ManageUser {
+  username: string;
+  email: string;
+  password: string;
+  no_hp: string;
+  role: "admin" | "member";
+  status_akun: "active" | "inactive";
 }
-export class UserProfile {
-  constructor(
-    public id: number,
-    public username: string,
-    public email: string,
-    public no_hp: string,
-    public tanggal_lahir: Date,
-    public jenis_kelamin: "L" | "P",
-    public alamat: string,
-    public foto: string,
-    public role: "admin" | "member",
-    public is_superadmin: boolean,
-    public status_akun: boolean,
-    public tanggal_bergabung: Date,
-    public created_at: Date,
-    public updated_at: Date
-  ) {}
+
+export interface LoginDTO {
+  email: string;
+  password: string;
+}
+
+export interface UserResponse {
+  id: number;
+  username: string;
+  password: string
+  email: string;
+  role: "admin" | "member";
+  status_akun: "active" | "inactive";
+}
+
+
+export interface getAllUsers {
+  page: string,
+  limit: string, 
+  search?: string
 }

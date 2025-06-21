@@ -1,7 +1,6 @@
 import { ZodSchema } from "zod";
 import { verifyToken } from "../utils/jwtUtils";
 import { NextFunction, Request, Response } from "express";
-import jwt from 'jsonwebtoken'
 
 export const Validate =
   (schema: ZodSchema) => (req: Request, res: Response, next: NextFunction) => {
@@ -17,7 +16,6 @@ export const Validate =
   };
 
 
-const SECRET = process.env.JWT_SECRET || "supersecretkey";
 
 export function protectRoute(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
@@ -32,7 +30,7 @@ export function protectRoute(req: Request, res: Response, next: NextFunction) {
   const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(token, SECRET);
+    const decoded = verifyToken(token);
     (req as any).user = decoded; // Inject user info ke req
     next();
   } catch (err) {

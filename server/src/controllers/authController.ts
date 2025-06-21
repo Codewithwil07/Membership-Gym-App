@@ -1,34 +1,36 @@
 import { Request, Response } from "express";
 import { AuthService } from "../services/authService";
-import { LoginDTO, RegisterDTO } from "../models/user";
-import { userRepository } from "../repositories/userRepository";
+import { UserRepository } from "../repositories/userRepository";
 import { generateToken } from "../utils/jwtUtils";
 
-const service = new AuthService(new userRepository());
+const service = new AuthService(new UserRepository());
 
 export class AuthController {
-  static async Register(req: Request, res: Response) {
+  static async register(req: Request, res: Response) {
     try {
       const { username, email, no_hp, password } = req.body;
 
-      if (!username || !email || !no_hp || !password)
-        throw { status: 400, message: "Semua field wajib di isi" };
+      if (!username || !email || !no_hp || !password) {
+        throw { status: 400, message: "Semua field wajib diisi" };
+      }
 
-      const user = new RegisterDTO(username, email, no_hp, password);
-      const result = await service.Register(user);
+      const user = { username, email, no_hp, password };
+
+      const result = await service.register(user);
       res.status(201).json({
         success: true,
-        message: "Registrasi Berhasil",
-        data: result || null,
+        message: "Registrasi berhasil",
+        data: result,
       });
     } catch (error: any) {
-      res
-        .status(error.status || 500)
-        .json({ succes: false, message: error.message || "Terjadi kesalahan" });
+      res.status(error.status || 500).json({
+        success: false,
+        message: error.message || "Terjadi kesalahan di server",
+      });
     }
   }
 
-  static async Login(req: Request, res: Response) {
+  static async login(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
 
@@ -36,8 +38,9 @@ export class AuthController {
         throw { status: 400, message: "Semua field wajib diisi" };
       }
 
-      const user = new LoginDTO(email, password);
-      const payload = await service.Login(user);
+      const loginData = { email, password };
+
+      const payload = await service.login(loginData);
 
       const token = generateToken({
         id: payload.id,
@@ -46,31 +49,35 @@ export class AuthController {
       });
 
       res.cookie("token", token, {
-        httpOnly: true, // 🔒 aman dari XSS
-        secure: process.env.NODE_ENV === "production", // 🔒 HTTPS di production
-        sameSite: "strict", // 🔒 mencegah CSRF
-        maxAge: 24 * 60 * 60 * 1000, // 1 hari
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 24 * 60 * 60 * 1000,
       });
 
       res.status(200).json({
         success: true,
-        message: "Login Berhasil",
+        message: "Login berhasil",
         data: payload,
       });
     } catch (error: any) {
       res.status(error.status || 500).json({
         success: false,
-        message: error.message || "Terjadi kesalahan",
+        message: error.message || "Terjadi kesalahan di server",
       });
     }
   }
 
-  static async Logout(req: Request, res: Response) {
+  static async logout(req: Request, res: Response) {
     res.clearCookie("token", {
-      sameSite: "strict",
-      secure: true,
       httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
     });
-    res.json({ success: true, message: "Logout berhasil" });
+
+    res.status(200).json({
+      success: true,
+      message: "Logout berhasil",
+    });
   }
 }

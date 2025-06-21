@@ -2,6 +2,7 @@ import express, { Application } from "express";
 import helmet from "helmet";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes";
+import adminRoutes from "./routes/adminRoutes";
 import { errorHandler } from "./middlewares/errorHandler";
 import cookieParser from 'cookie-parser'
 
@@ -24,10 +25,12 @@ export class App {
 
   private routes() {
     this.app.use("/auth", authRoutes);
+    this.app.use("/admin", adminRoutes);
+
     this.app.use((req, res) => {
       res.status(404).json({
         success: false,
-        message: "Route tidak ditemukan",
+        message: "Resource tidak ditemukan",
       });
     });
 
