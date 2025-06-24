@@ -31,7 +31,7 @@ export class UserRepository {
 
   async findByEmail(email: string): Promise<UserResponse | null> {
     const [rows]: any = await db.query(
-      "SELECT id, username, email, password, no_hp, role, status_akun FROM users WHERE email = ?",
+      "SELECT id, username, email, password, no_hp, role, status_akun, is_superadmin FROM users WHERE email = ?",
       [email]
     );
     return rows[0] || null;
@@ -51,13 +51,6 @@ export class UserRepository {
       [id]
     );
     return rows[0] || null;
-  }
-
-  async getAll(): Promise<UserResponse[]> {
-    const [rows]: any = await db.query(
-      "SELECT id, username, email, no_hp, role, status_akun FROM users"
-    );
-    return rows;
   }
 
   async getAllUsers({

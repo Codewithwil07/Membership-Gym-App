@@ -2,8 +2,8 @@ import { Request, Response, NextFunction } from "express";
 
 export function adminOnly(req: Request, res: Response, next: NextFunction) {
   const user = (req as any).user;
-  
-  if (!user || user.role !== "admin") {
+
+  if (!user || (user.role !== "admin" && !user.is_superadmin)) {
     return res.status(403).json({
       success: false,
       message: "Hanya admin yang boleh mengakses",
@@ -13,8 +13,11 @@ export function adminOnly(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
-
-export function superadminOnly(req: Request, res: Response, next: NextFunction) {
+export function superadminOnly(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const user = (req as any).user;
 
   if (!user || !user.is_superadmin) {

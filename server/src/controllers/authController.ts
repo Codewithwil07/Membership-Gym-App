@@ -46,6 +46,7 @@ export class AuthController {
         id: payload.id,
         username: payload.username,
         role: payload.role,
+        is_superadmin: payload.is_superadmin,
       });
 
       res.cookie("token", token, {

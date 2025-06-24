@@ -1,4 +1,3 @@
-import DashboardNavbar from "@/components/admin/DashboardNavbar";
 import MemberTable from "@/components/admin/MemberTable";
 
 export default function MemberPage() {

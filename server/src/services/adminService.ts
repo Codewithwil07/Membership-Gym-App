@@ -47,13 +47,15 @@ export class AdminServices {
     };
   }
   async getAllUser(data: getAllUsers) {
-    const page = parseInt(data.page) || 1;
-    const limit = parseInt(data.limit) || 10;
+    const page = data.page || 1;
+    const limit = data.limit || 10;
     const search = data.search || "";
 
     const offset = (page - 1) * limit;
 
     const result = await this.repo.getAllUsers({ limit, offset, search });
+
+    const totalPage = Math.ceil(result.total / limit);
 
     return {
       data: result.data,
@@ -61,6 +63,7 @@ export class AdminServices {
         total: result.total,
         page,
         limit,
+        totalPage,
       },
     };
   }

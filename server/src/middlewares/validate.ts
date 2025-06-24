@@ -11,4 +11,5 @@ export const Validate =
         message: err.errors?.[0]?.message || "Data tidak valid",
       });
     }
+    next()
   };

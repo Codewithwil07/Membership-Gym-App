@@ -47,6 +47,7 @@ export class AuthService {
       password: existing.password,
       email: existing.email,
       role: existing.role,
+      is_superadmin: existing.is_superadmin,
       status_akun: existing.status_akun,
     };
 

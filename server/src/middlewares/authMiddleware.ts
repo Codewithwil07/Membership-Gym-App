@@ -15,23 +15,27 @@ export const Validate =
     }
   };
 
-
-
 export function protectRoute(req: Request, res: Response, next: NextFunction) {
-  const authHeader = req.headers.authorization;
+  // Ambil token dari cookie dulu, kalau gak ada baru dari header
+  let token = req.cookies.token;
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  if (!token) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.split(" ")[1];
+    }
+  }
+
+  if (!token) {
     return res.status(401).json({
       success: false,
-      message: "Token tidak ditemukan atau format salah",
+      message: "Token tidak ditemukan",
     });
   }
 
-  const token = authHeader.split(" ")[1];
-
   try {
-    const decoded = verifyToken(token);
-    (req as any).user = decoded; // Inject user info ke req
+    const decoded = verifyToken(token); // verifyToken harusnya JWT.verify
+    (req as any).user = decoded;
     next();
   } catch (err) {
     return res.status(401).json({

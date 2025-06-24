@@ -53,7 +53,7 @@ export class AdminController {
     } catch (error: any) {
       res.status(error.status || 500).json({
         success: false,
-        messagae: error.message || "Terjadi kesalahan di server",
+        message: error.message || "Terjadi kesalahan di server",
       });
     }
   }
@@ -68,7 +68,28 @@ export class AdminController {
     } catch (error: any) {
       res.status(error.status || 500).json({
         success: false,
-        messagae: error.message || "Terjadi kesalahan di server",
+        message: error.message || "Terjadi kesalahan di server",
+      });
+    }
+  }
+
+  static async getAllUsers(req: Request, res: Response) {
+    try {
+      const page = parseInt(req.query.page as string);
+      const limit = parseInt(req.query.limit as string);
+      const search = (req.query.search as string) || "";
+
+      if (isNaN(page) || isNaN(limit) || page <= 0 || limit <= 0) {
+        throw { message: "Query param tidak valid", status: 400 };
+      }
+
+      const data = await service.getAllUser({ page, limit, search });
+
+      successResponse(res, data, "Akses data valid", 200);
+    } catch (error: any) {
+      res.status(error.status || 500).json({
+        success: false,
+        message: error.message || "Terjadi kesalahan di server",
       });
     }
   }

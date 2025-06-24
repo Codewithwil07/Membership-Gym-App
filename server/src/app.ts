@@ -1,10 +1,14 @@
 import express, { Application } from "express";
 import helmet from "helmet";
 import cors from "cors";
-import authRoutes from "./routes/authRoutes";
-import adminRoutes from "./routes/adminRoutes";
 import { errorHandler } from "./middlewares/errorHandler";
 import cookieParser from 'cookie-parser'
+
+import authRoutes from "./routes/authRoutes";
+import adminRoutes from "./routes/adminRoutes";
+import paketRoutes from "./routes/paketRoutes";
+import transaksiRoutes from "./routes/transaksiRoutes";
+
 
 export class App {
   public app: Application;
@@ -22,10 +26,12 @@ export class App {
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser())
   }
-
+  
   private routes() {
     this.app.use("/auth", authRoutes);
     this.app.use("/admin", adminRoutes);
+    this.app.use("/admin", paketRoutes);
+    this.app.use("/admin", transaksiRoutes);
 
     this.app.use((req, res) => {
       res.status(404).json({

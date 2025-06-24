@@ -2,9 +2,9 @@ import { Response } from "express";
 
 export function successResponse(
   res: Response,
-  data: any = null,
+  status: number = 200,
   message: string = "OK",
-  status: number = 200
+  data: any = null,
 ) {
   return res.status(status).json({
     success: true,
@@ -12,6 +12,8 @@ export function successResponse(
     data,
   });
 }
+
+
 
 export class AppError extends Error {
   status: number;

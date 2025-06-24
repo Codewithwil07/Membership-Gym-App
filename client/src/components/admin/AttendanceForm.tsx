@@ -35,7 +35,9 @@ export default function AbsensiForm({
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle>{initialData ? "Edit Attendance" : "Add Attendance"}</CardTitle>
+        <CardTitle>
+          {initialData ? "Edit Attendance" : "Add Attendance"}
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
         <Input

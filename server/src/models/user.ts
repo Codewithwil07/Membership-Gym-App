@@ -25,12 +25,13 @@ export interface UserResponse {
   password: string
   email: string;
   role: "admin" | "member";
+  is_superadmin: boolean;
   status_akun: "active" | "inactive";
 }
 
 
 export interface getAllUsers {
-  page: string,
-  limit: string, 
+  page: number,
+  limit: number, 
   search?: string
 }
