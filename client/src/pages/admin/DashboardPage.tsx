@@ -1,27 +1,46 @@
-import ReportCard from "@/components/admin/ReportCard";
+// DashboardPage.tsx
+import DashboardCard from "@/components/admin/DashboardCard";
 import AttendanceChart from "@/components/admin/AttendanceChart";
-import NewPaymentChart from "@/components/admin/NewPayments";
-
-const hourlyData = [
-  { label: "06:00", count: 5 },
-  { label: "07:00", count: 8 },
-  { label: "08:00", count: 15 },
-  { label: "09:00", count: 12 },
-  { label: "10:00", count: 7 },
-  { label: "11:00", count: 10 },
-  { label: "12:00", count: 4 },
-];
+import RevenueChart from "@/components/admin/RevenueChart";
+import LatestPaymentsTable from "@/components/admin/LatestPaymentsTable";
+import LatestAttendanceTable from "@/components/admin/LatestAttendanceTable";
+import { Users, CalendarCheck, CreditCard, DollarSign } from "lucide-react";
 
 export default function DashboardPage() {
   return (
-    <main className="p-4 grid gap-4">
-      <div className="flex items-center gap-4">
-        <ReportCard title="Active Members" value={120} />
-        <ReportCard title="Today's Attendance" value={85} />
-        <ReportCard title="New Payments" value={5} />
+    <main className="p-4 space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <DashboardCard
+          title="Total Members"
+          value={128}
+          icon={<Users className="w-6 h-6" />}
+        />
+        <DashboardCard
+          title="Today's Attendance"
+          value={32}
+          icon={<CalendarCheck className="w-6 h-6" />}
+        />
+        <DashboardCard
+          title="Today's Transactions"
+          value={18}
+          icon={<CreditCard className="w-6 h-6" />}
+        />
+        <DashboardCard
+          title="Today's Revenue"
+          value="Rp 1.200.000"
+          icon={<DollarSign className="w-6 h-6" />}
+        />
       </div>
-      <AttendanceChart mode="hourly" data={hourlyData} />
-      <NewPaymentChart />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <AttendanceChart />
+        <RevenueChart />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <LatestPaymentsTable />
+        <LatestAttendanceTable />
+      </div>
     </main>
   );
 }

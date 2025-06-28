@@ -1,9 +1,9 @@
-import PaymentVerificationTable from "@/components/admin/PaymentVerificationTable";
+import PaymentLogTable from "@/components/admin/PaymentLogTable";
 
 export default function PaymentPage() {
   return (
         <main className="p-4">
-          <PaymentVerificationTable />
+          <PaymentLogTable />
         </main>
   );
 }

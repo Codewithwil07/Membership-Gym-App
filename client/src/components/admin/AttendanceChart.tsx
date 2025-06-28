@@ -1,57 +1,33 @@
-import { Card } from "@/components/ui/card";
-import {
-  ResponsiveContainer,
-  LineChart,
-  BarChart,
-  Line,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-} from "recharts";
+// components/admin/AttendanceChart.tsx
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
-interface AttendanceChartProps {
-  mode: "hourly" | "daily";
-  data: { label: string; count: number }[];
-}
+const data = [
+  { date: "Sen", attendance: 20 },
+  { date: "Sel", attendance: 25 },
+  { date: "Rab", attendance: 18 },
+  { date: "Kam", attendance: 22 },
+  { date: "Jum", attendance: 28 },
+  { date: "Sab", attendance: 35 },
+  { date: "Min", attendance: 30 },
+];
 
-export default function AttendanceChart({ mode, data }: AttendanceChartProps) {
+export default function AttendanceChart() {
   return (
-    <Card className="p-4">
-      <h2 className="text-sm font-semibold mb-2">
-        {mode === "hourly"
-          ? "Today's Attendance by Hour"
-          : "Attendance Last 7 Days"}
-      </h2>
-      <ResponsiveContainer width="100%" height={300}>
-        {mode === "hourly" ? (
+    <Card>
+      <CardHeader>
+        <CardTitle>Attendance This Week</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ResponsiveContainer width="100%" height={250}>
           <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="label" />
-            <YAxis allowDecimals={false} />
+            <XAxis dataKey="date" />
+            <YAxis />
             <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="count"
-              stroke="hsl(var(--primary))"
-              strokeWidth={2}
-            />
+            <Line type="monotone" dataKey="attendance" stroke="#4f46e5" strokeWidth={2} />
           </LineChart>
-        ) : (
-          <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="label" />
-            <YAxis allowDecimals={false} />
-            <Tooltip />
-            <Bar
-              dataKey="count"
-              fill="hsl(var(--primary))"
-              radius={[4, 4, 0, 0]}
-            />
-          </BarChart>
-        )}
-      </ResponsiveContainer>
+        </ResponsiveContainer>
+      </CardContent>
     </Card>
   );
 }
