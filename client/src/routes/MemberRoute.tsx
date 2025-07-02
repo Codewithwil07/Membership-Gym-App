@@ -10,7 +10,7 @@ export default function MemberRoute() {
   // }
   return (
     <Layout>
-      <Outlet />;
+      <Outlet />
     </Layout>
   );
 }

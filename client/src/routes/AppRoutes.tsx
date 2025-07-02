@@ -14,15 +14,16 @@ import MemberFormPage from "@/pages/admin/MemberFormPage";
 
 // Member Pages
 import MemberDashboardPage from "@/pages/member/DashboardPage";
-import EditProfilePage from "@/pages/member/EditProfilePage";
-import PaketListPage from "@/pages/member/PaketListPage";
-import RiwayatPembayaranPage from "@/pages/member/RiwayatPembayaranPage";
-import RiwayatAbsensiPage from "@/pages/member/RiwayatAbsensiPage";
+import EditProfilePage from "@/components/member/EditProfilePage";
+import RiwayatPembayaranPage from "@/components/member/RiwayatPembayaranPage";
+import RiwayatAbsensiPage from "@/components/member/RiwayatAbsensiPage";
+import CheckoutPage from "@/pages/member/CheckoutPage";
+import PackagesPage from "@/pages/member/PackagesPage";
+import AccountPage from "@/pages/member/AccountPage";
 
 // Common Pages
 import LoginPage from "@/pages/auth/LoginPage";
 import NotFoundPage from "@/pages/NotFoundPage";
-import LandingPage from "@/pages/LandingPage";
 import GymLandingPage from "@/pages/LandingPage";
 
 export default function AppRoutes() {
@@ -48,12 +49,17 @@ export default function AppRoutes() {
         </Route>
 
         {/* Member */}
+        <Route index element={<GymLandingPage />} />
         <Route element={<MemberRoute />}>
-          <Route index element={<GymLandingPage />} />
           <Route path="/dashboard" element={<MemberDashboardPage />} />
-          <Route path="/edit" element={<EditProfilePage />} />
-          <Route path="/paket-list" element={<PaketListPage />} />
-          <Route path="/riwayat-pembayaran" element={<RiwayatPembayaranPage />} />
+          <Route path="/packages" element={<PackagesPage />} />
+          <Route path="/payment" element={<CheckoutPage />} />
+          <Route path="/account" element={<AccountPage />} />
+          <Route path="/profile" element={<EditProfilePage />} />
+          <Route
+            path="/riwayat-pembayaran"
+            element={<RiwayatPembayaranPage />}
+          />
           <Route path="/riwayat-absensi" element={<RiwayatAbsensiPage />} />
         </Route>
 

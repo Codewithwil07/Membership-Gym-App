@@ -1,55 +1,94 @@
-// src/components/Layout.tsx
+import React from 'react';
+import { Link, NavLink } from 'react-router-dom';
+import { Home, Package, History, User, DumbbellIcon } from 'lucide-react';
 
-import React, { ReactNode, useState } from 'react';
-import Navbar from './Navbar';
+type LayoutProps = {
+  children: React.ReactNode;
+};
 
-interface LayoutProps {
-  children: ReactNode;
-}
+// Data untuk link navigasi mobile
+const mobileNavLinks = [
+  { href: '/', label: 'Home', icon: Home },
+  { href: '/packages', label: 'Paket', icon: Package },
+  { href: '/riwayat', label: 'Riwayat', icon: History },
+  { href: '/profile', label: 'Profil', icon: User },
+];
+
+// Data untuk link navigasi desktop (tanpa profil)
+const desktopNavLinks = [
+  { href: '/dashboard', label: 'Home' },
+  { href: '/packages', label: 'Paket' },
+  { href: '/riwayat', label: 'Riwayat' },
+];
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  // State untuk mengontrol lebar sidebar di desktop
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-
-  // Lebar sidebar saat collapsed dan expanded
-  const collapsedSidebarWidth = 'w-20'; // 80px
-  const expandedSidebarWidth = 'w-64'; // 256px
-  const topbarHeight = 'h-16'; // Height of your desktop top bar
-
-  // Extract numeric values from width strings for dynamic margin-left
-  const collapsedPx = parseInt(collapsedSidebarWidth.replace('w-', '')) * 4; // w-20 is 20 * 4 = 80px
-  const expandedPx = parseInt(expandedSidebarWidth.replace('w-', '')) * 4;   // w-64 is 64 * 4 = 256px
-  const topbarPx = parseInt(topbarHeight.replace('h-', '')) * 4; // h-16 is 16 * 4 = 64px
-
   return (
-    <div className="min-h-screen bg-dark text-light font-sans flex">
-      {/* Navbar (Sidebar for Desktop, Bottom Bar for Mobile) */}
-      <Navbar
-        isSidebarExpanded={isSidebarExpanded}
-        setIsSidebarExpanded={setIsSidebarExpanded}
-        collapsedWidth={collapsedSidebarWidth}
-        expandedWidth={expandedSidebarWidth}
-      />
+    <div className="bg-spotify-dark min-h-screen text-white">
+      
+      {/* ======================= */}
+      {/* == DESKTOP TOP BAR == */}
+      {/* ======================= */}
+      <header className="hidden md:flex justify-between items-center px-8 h-16 border-b border-spotify-light-border">
+        <Link to="/" className="text-xl font-bold text-gold flex gap-x-1">
+          <DumbbellIcon className='text-spotify-green'/> <span>Platinum Gym</span>
+        </Link>
+        <nav className="flex items-center space-x-8 h-full">
+          {desktopNavLinks.map((link) => (
+            <NavLink
+              key={link.href}
+              to={link.href}
+              className={({ isActive }) =>
+                `transition-colors ${isActive ? 'text-white' : 'text-spotify-dimmed hover:text-white'}`
+              }
+            >
+              {link.label}
+            </NavLink>
+          ))}
+          {/* Link Profil tetap terpisah karena stylenya berbeda */}
+          <NavLink
+            to="/profil"
+            className={({ isActive }) =>
+              `p-2 rounded-full transition-colors ${
+                isActive ? 'bg-spotify-light-border text-white' : 'text-spotify-dimmed hover:text-white'
+              }`
+            }
+          >
+            <User size={20} />
+          </NavLink>
+        </nav>
+      </header>
 
-      {/* Konten Utama */}
-      {/* Apply dynamic margin-left and padding-top for desktop */}
-      <main
-        className={`flex-grow pb-16 md:pb-0 min-h-screen relative overflow-hidden transition-all duration-300 ease-in-out`}
-        style={{
-          marginLeft: isSidebarExpanded ? `${expandedPx}px` : `${collapsedPx}px`,
-          paddingTop: `${topbarPx}px`, // Add padding for the topbar
-        }}
-      >
-        {/* Background Gradient */}
-        <div className="absolute top-0 left-0 w-full h-[300px] md:h-[400px] bg-gradient-to-b from-gradient-start to-transparent opacity-30 pointer-events-none z-0"></div>
-        <div className="absolute top-0 right-0 w-full h-[300px] md:h-[400px] bg-gradient-to-l from-gradient-end to-transparent opacity-20 pointer-events-none z-0"></div>
+      {/* ======================= */}
+      {/* == MOBILE BOTTOM BAR == */}
+      {/* ======================= */}
+      <footer className="md:hidden fixed bottom-0 left-0 right-0 bg-[#181818] border-t border-spotify-light-border z-50">
+        <nav className="flex justify-around items-center h-16">
+          {mobileNavLinks.map((link) => (
+            <NavLink
+              key={link.href}
+              to={link.href}
+              end={link.href === '/'} // Prop 'end' hanya untuk link root
+              className={({ isActive }) =>
+                `flex flex-col items-center justify-center w-full h-full transition-colors ${
+                  isActive ? 'text-white' : 'text-spotify-dimmed hover:text-white'
+                }`
+              }
+            >
+              <link.icon size={24} />
+              <span className="text-[10px] mt-1">{link.label}</span>
+            </NavLink>
+          ))}
+        </nav>
+      </footer>
 
-        <div className="relative z-10 p-6"> {/* Add padding to the content inside main */}
-            {children}
-        </div>
+      {/* ======================= */}
+      {/* ==   KONTEN HALAMAN  == */}
+      {/* ======================= */}
+      <main className="p-4 sm:p-6 pb-24 md:pb-6 md:pt-6">
+        {children}
       </main>
     </div>
   );
-};
+}
 
 export default Layout;
