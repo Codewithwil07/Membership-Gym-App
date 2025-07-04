@@ -18,7 +18,7 @@ export class UserRepository {
       user.no_hp,
       user.password,
       (user as ManageUser).role || "member",
-      (user as ManageUser).status_akun || "active",
+      (user as ManageUser).status_akun || "nonactive",
     ]);
 
     const [rows]: any = await db.query(
@@ -88,30 +88,24 @@ export class UserRepository {
     };
   }
 
-  async updateStatus(
-    id: number,
-    status: "active" | "inactive"
-  ): Promise<{ id: number; status_akun: string }> {
-    const [updateResult]: any = await db.query(
-      "UPDATE users SET status_akun = ? WHERE id = ?",
+async updateStatus(
+  id: number,
+  status: "active" | "inactive",
+  tanggalBergabung?: Date
+) {
+  if (status === "active" && tanggalBergabung) {
+    await db.query(
+      `UPDATE users SET status_akun = ?, tanggal_bergabung = IFNULL(tanggal_bergabung, ?) WHERE id = ?`,
+      [status, tanggalBergabung, id]
+    );
+  } else {
+    await db.query(
+      `UPDATE users SET status_akun = ? WHERE id = ?`,
       [status, id]
     );
-
-    if (updateResult.affectedRows === 0) {
-      throw { message: "User tidak ditemukan", status: 404 };
-    }
-
-    const [rows]: any = await db.query(
-      "SELECT id, status_akun FROM users WHERE id = ?",
-      [id]
-    );
-
-    if (!rows[0]) {
-      throw { message: "User tidak ditemukan setelah update", status: 404 };
-    }
-
-    return rows[0];
   }
+}
+
 
   async delete(id: number): Promise<{ id: number }> {
     const [deleteResult]: any = await db.query(

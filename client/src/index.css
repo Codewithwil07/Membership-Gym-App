@@ -3,6 +3,16 @@
 @tailwind components;
 @tailwind utilities;
 
+ustom-scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Untuk Chrome, Safari, Opera */
+  width: 0;
+  height: 0;
+}
+
+.custom-scrollbar-hide {
+  -ms-overflow-style: none;  /* Untuk IE dan Edge */
+  scrollbar-width: none;     /* Untuk Firefox */
+}
 
 @layer base {
   :root {

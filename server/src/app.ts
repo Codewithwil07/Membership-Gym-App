@@ -2,13 +2,15 @@ import express, { Application } from "express";
 import helmet from "helmet";
 import cors from "cors";
 import { errorHandler } from "./middlewares/errorHandler";
-import cookieParser from 'cookie-parser'
+import cookieParser from "cookie-parser";
 
 import authRoutes from "./routes/authRoutes";
 import adminRoutes from "./routes/adminRoutes";
 import paketRoutes from "./routes/paketRoutes";
-import transaksiRoutes from "./routes/transaksiRoutes";
-
+import paymentRoutes from "./routes/paymentRoutes";
+import absensiRoutes from "./routes/absensiRoutes";
+import bebanOperasionalRoutes from "./routes/bebanOperasionalRoutes";
+// import transaksiRoutes from "./routes/transaksiRoutes";
 
 export class App {
   public app: Application;
@@ -24,14 +26,17 @@ export class App {
     this.app.use(cors());
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
-    this.app.use(cookieParser())
+    this.app.use(cookieParser());
   }
-  
+
   private routes() {
     this.app.use("/auth", authRoutes);
     this.app.use("/admin", adminRoutes);
     this.app.use("/admin", paketRoutes);
-    this.app.use("/admin", transaksiRoutes);
+    this.app.use("/api/payment", paymentRoutes);
+    this.app.use("/api/absensi", absensiRoutes);
+    this.app.use("/api/beban-operasional", bebanOperasionalRoutes);
+    // this.app.use("/admin", transaksiRoutes);
 
     this.app.use((req, res) => {
       res.status(404).json({

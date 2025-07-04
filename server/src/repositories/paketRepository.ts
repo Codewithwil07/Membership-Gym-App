@@ -18,16 +18,18 @@ export class PaketRepository {
   }
 
   async getAll() {
-    const [rows]: any = await db.query("SELECT * FROM paket_membership");
+    const [rows]: any = await db.query(
+      "SELECT id, nama_paket, durasi_hari, harga, status_aktif FROM paket_membership"
+    );
     return rows;
   }
 
   async getById(id: number) {
     const [rows]: any = await db.query(
-      "SELECT * FROM paket_membership WHERE id = ?",
+      "SELECT id, nama_paket, durasi_hari, harga, status_aktif FROM paket_membership WHERE id = ?",
       [id]
     );
-    return rows[0];
+    return rows.length > 0 ? rows[0] : null;
   }
 
   async update(id: number, data: PaketDTO) {

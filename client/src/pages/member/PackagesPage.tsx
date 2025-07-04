@@ -96,7 +96,7 @@ const PackagesPage: React.FC = () => {
                 asChild
                 className="w-full bg-spotify-green text-black font-bold hover:bg-spotify-green/90"
               >
-                <Link to="/checkout">Pilih PackagesPage</Link>
+                <Link to="/packages/checkout">Pilih PackagesPage</Link>
               </Button>
             </CardFooter>
           </Card>

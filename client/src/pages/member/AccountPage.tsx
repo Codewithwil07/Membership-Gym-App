@@ -1,61 +1,105 @@
 // src/pages/AccountPage.tsx
 
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input"; // Pastikan Input diimpor jika diperlukan
+import { Label } from "@/components/ui/label"; // Pastikan Label diimpor jika diperlukan
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   User as UserIcon,
   Mail,
   Phone,
   Calendar,
   Lock,
-  Tag, // Untuk Role
-  CheckCircle, // Untuk Status Akun
-  Ban, // Untuk Status Akun Nonaktif/Suspended
-} from 'lucide-react';
+  Tag,
+  CheckCircle,
+  Ban,
+  Share2,
+  Copy,
+} from "lucide-react"; // Tambah Share2, Copy icons
 
-import { format } from 'date-fns';
-import { id as idLocale } from 'date-fns/locale'; // Pastikan locale id terimport dengan alias
+import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
 
 const AccountPage: React.FC = () => {
-  // --- Data Dummy User (akan diambil dari API nanti, mencakup semua dari ERD) ---
+  const navigate = useNavigate();
+
+  // Data dummy user (akan diambil dari API nanti)
   const currentUser = {
-    id: 1, // Contoh ID
-    username: "budisantoso", // <<-- Baru dari ERD
+    id: 1,
+    username: "budisantoso",
     name: "Budi Santoso",
     avatarUrl: "https://github.com/shadcn.png",
     avatarInitials: "BS",
     email: "budi.santoso@example.com",
-    phoneNumber: "0812-3456-7890", // `no_hp` dari ERD
-    role: "member", // <<-- Baru dari ERD
-    accountStatus: "aktif", // `status_akun` dari ERD
-    joinDate: new Date('2024-01-15'), // `tanggal_bergabung` dari ERD (dalam Date object)
-    membershipTier: "Gold Member", // Untuk info tambahan
+    phoneNumber: "0812-3456-7890",
+    role: "member",
+    accountStatus: "aktif",
+    joinDate: new Date("2024-01-15"),
+    membershipTier: "Gold Member",
+    referralCode: "BUDI2025GYM", // <<-- KODE REFERRAL BARU DI SINI
   };
-  // --- Akhir Data Dummy ---
 
-  // Format tanggal bergabung
-  const formattedJoinDate = format(currentUser.joinDate, 'dd MMMM yyyy', { locale: idLocale });
+  const formattedJoinDate = format(currentUser.joinDate, "dd MMMMyyyy", {
+    locale: idLocale,
+  });
 
   const handleEditProfile = () => {
-    alert("Mengarahkan ke halaman/modal edit profil.");
+    navigate("/account/edit-profile");
   };
 
   const handleChangePassword = () => {
     alert("Mengarahkan ke halaman/modal ubah password.");
   };
 
+  const handleCopyReferralCode = async () => {
+    try {
+      await navigator.clipboard.writeText(currentUser.referralCode);
+      alert("Kode referral berhasil disalin!");
+    } catch (err) {
+      console.error("Gagal menyalin kode: ", err);
+      alert("Gagal menyalin kode referral.");
+    }
+  };
+
+  const handleShareReferralCode = () => {
+    const shareText = `Yuk gabung GymFlow dan dapatkan diskon membership dengan kode referral saya: ${currentUser.referralCode}! Daftar sekarang di [Link Aplikasi Anda]`;
+
+    // Web Share API (jika didukung)
+    if (navigator.share) {
+      navigator
+        .share({
+          title: "Promo GymFlow dari Teman!",
+          text: shareText,
+          url: "https://aplikasi-gymflow.com", // Ganti dengan link aplikasi Anda
+        })
+        .then(() => console.log("Kode referral dibagikan."))
+        .catch((error) => console.error("Gagal berbagi:", error));
+    } else {
+      // Fallback untuk browser yang tidak mendukung Web Share API
+      alert(
+        `Bagikan kode referral Anda: ${currentUser.referralCode}\n\n${shareText}`
+      );
+      // Anda bisa menambahkan logika copy to clipboard di sini jika belum ada
+    }
+  };
+
   const getAccountStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'aktif':
+      case "aktif":
         return <CheckCircle size={20} className="text-spotify-green" />;
-      case 'nonaktif':
+      case "nonaktif":
         return <Ban size={20} className="text-red-500" />;
-      case 'suspended':
+      case "suspended":
         return <Ban size={20} className="text-yellow-500" />;
       default:
         return null;
@@ -64,90 +108,96 @@ const AccountPage: React.FC = () => {
 
   return (
     <div className="p-4 md:p-6 space-y-6">
-      {/* Header Halaman */}
-      <h1 className="text-2xl md:text-3xl font-bold text-white leading-tight">
-        Pengaturan <span className="text-spotify-green">Akun</span>
-      </h1>
-      <p className="text-spotify-dimmed text-sm md:text-base mb-8">
-        Kelola informasi pribadi dan keamanan akun Anda.
-      </p>
+      <div className="max-w-screen-md mx-auto bg-spotify-card-bg rounded-xl shadow-2xl p-4 space-y-6 md:p-6 md:space-y-8">
+        {/* Header Halaman */}
+        <h1 className="text-2xl md:text-3xl font-bold text-spotify-text-white leading-tight">
+          Pengaturan <span className="text-spotify-green">Akun</span>
+        </h1>
+        <p className="text-spotify-text-light-grey text-sm md:text-base mb-8">
+          Kelola informasi pribadi dan keamanan akun Anda.
+        </p>
 
-      {/* Bagian Informasi Profil */}
-      <Card className="bg-spotify-card-active border border-spotify-light-border text-white rounded-xl shadow-lg p-5 md:p-6">
-        <CardHeader className="flex flex-col items-center text-center pb-4">
-          <Avatar className="w-24 h-24 mb-4 border-4 border-spotify-green shadow-md">
-            <AvatarImage src={currentUser.avatarUrl} alt={currentUser.name} />
-            <AvatarFallback className="bg-spotify-green/20 text-spotify-green text-4xl font-bold">
-              {currentUser.avatarInitials}
-            </AvatarFallback>
-          </Avatar>
-          <CardTitle className="text-2xl font-bold">{currentUser.name}</CardTitle>
-          <CardDescription className="text-spotify-dimmed text-base">
-            {currentUser.membershipTier}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4 px-6">
-          {/* Username */}
-          <div className="flex items-center gap-3 text-spotify-light-text">
-            <UserIcon size={20} className="text-spotify-green" />
-            <span>Username: <span className="font-semibold">{currentUser.username}</span></span>
-          </div>
-          {/* Email */}
-          <div className="flex items-center gap-3 text-spotify-light-text">
-            <Mail size={20} className="text-spotify-green" />
-            <span>Email: <span className="font-semibold">{currentUser.email}</span></span>
-          </div>
-          {/* Nomor HP */}
-          <div className="flex items-center gap-3 text-spotify-light-text">
-            <Phone size={20} className="text-spotify-green" />
-            <span>Telepon: <span className="font-semibold">{currentUser.phoneNumber}</span></span>
-          </div>
-          {/* Role */}
-          <div className="flex items-center gap-3 text-spotify-light-text">
-            <Tag size={20} className="text-spotify-green" />
-            <span>Role: <span className="font-semibold capitalize">{currentUser.role}</span></span>
-          </div>
-          {/* Status Akun */}
-          <div className="flex items-center gap-3 text-spotify-light-text">
-            {getAccountStatusIcon(currentUser.accountStatus)}
-            <span>Status Akun: <span className="font-semibold capitalize">{currentUser.accountStatus}</span></span>
-          </div>
-          {/* Tanggal Bergabung */}
-          <div className="flex items-center gap-3 text-spotify-light-text">
-            <Calendar size={20} className="text-spotify-green" />
-            <span>Bergabung sejak: <span className="font-semibold">{formattedJoinDate}</span></span>
-          </div>
-        </CardContent>
-        <CardFooter className="pt-4 px-6">
-          <Button
-            onClick={handleEditProfile}
-            className="w-full bg-spotify-green text-black font-bold py-2 rounded-full hover:bg-opacity-90 transition-colors"
-          >
-            Edit Profil
-          </Button>
-        </CardFooter>
-      </Card>
-
-      {/* Bagian Ubah Password */}
-      <Card className="bg-spotify-card-active border border-spotify-light-border text-white rounded-xl shadow-lg p-5 md:p-6">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-xl font-bold flex items-center gap-2">
-            <Lock size={20} className="text-spotify-green" /> Ubah Password
-          </CardTitle>
-          <CardDescription className="text-spotify-dimmed text-sm">
-            Jaga keamanan akun Anda dengan mengganti password secara berkala.
-          </CardDescription>
-        </CardHeader>
-        <CardFooter className="pt-4 px-6">
-          <Button
-            onClick={handleChangePassword}
-            className="w-full bg-gray-700 text-white font-bold py-2 rounded-full hover:bg-gray-600 transition-colors"
-          >
-            Ganti Password
-          </Button>
-        </CardFooter>
-      </Card>
-
+        {/* Bagian Informasi Profil */}
+        <Card className="bg-spotify-card-bg border border-spotify-border text-spotify-text-white rounded-xl shadow-lg p-5 md:p-6">
+          <CardHeader className="flex flex-col items-center text-center pb-4">\
+            <Avatar className="w-24 h-24 mb-4 border-4 border-spotify-green shadow-md">
+              <AvatarImage src={currentUser.avatarUrl} alt={currentUser.name} />
+              <AvatarFallback className="bg-spotify-green/20 text-spotify-green text-4xl font-bold">
+                {currentUser.avatarInitials}
+              </AvatarFallback>
+            </Avatar>
+            <CardTitle className="text-2xl font-bold">
+              {currentUser.name}
+            </CardTitle>
+            <CardDescription className="text-spotify-text-light-grey text-base">
+              {currentUser.membershipTier}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4 px-6">
+            <div className="flex items-center gap-3 text-spotify-text-light-grey">
+              <UserIcon size={20} className="text-spotify-green" />
+              <span>
+                Username:{" "}
+                <span className="font-semibold text-spotify-text-white">
+                  {currentUser.username}
+                </span>
+              </span>
+            </div>
+            <div className="flex items-center gap-3 text-spotify-text-light-grey">
+              <Phone size={20} className="text-spotify-green" />
+              <span>
+                Telepon:{" "}
+                <span className="font-semibold text-spotify-text-white">
+                  {currentUser.phoneNumber}
+                </span>
+              </span>
+            </div>
+            <div className="flex items-center gap-3 text-spotify-text-light-grey">
+              <Tag size={20} className="text-spotify-green" />
+              <span>
+                Role:{" "}
+                <span className="font-semibold capitalize text-spotify-text-white">
+                  {currentUser.role}
+                </span>
+              </span>
+            </div>
+            <div className="flex items-center gap-3 text-spotify-text-light-grey">
+              {getAccountStatusIcon(currentUser.accountStatus)}
+              <span>
+                Status Akun:{" "}
+                <span className="font-semibold capitalize text-spotify-text-white">
+                  {currentUser.accountStatus}
+                </span>
+              </span>
+            </div>
+            <div className="flex items-center gap-3 text-spotify-text-light-grey">
+              <Calendar size={20} className="text-spotify-green" />
+              <span>
+                Bergabung sejak:{" "}
+                <span className="font-semibold text-spotify-text-white">
+                  {formattedJoinDate}
+                </span>
+              </span>
+            </div>
+          </CardContent>
+          <CardFooter className="pt-4 px-6 flex-col gap-y-5">
+            <Button
+              onClick={handleEditProfile}
+              className="w-full bg-spotify-green text-spotify-black font-bold py-2 rounded-full hover:bg-opacity-90 transition-colors"
+            >
+              Edit Profile
+            </Button>
+            <Button
+              onClick={handleEditProfile}
+              variant={'destructive'}
+              className="w-full text-spotify-black font-bold py-2 rounded-full hover:bg-opacity-90 transition-colors"
+            >
+              Logout
+            </Button>
+          </CardFooter>
+        </Card>
+        {/* --- AKHIR BAGIAN BARU: KODE REFERRAL SAYA --- */}
+      </div>
     </div>
   );
 };

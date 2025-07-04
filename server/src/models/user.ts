@@ -11,7 +11,7 @@ export interface ManageUser {
   password: string;
   no_hp: string;
   role: "admin" | "member";
-  status_akun: "active" | "inactive";
+  status_akun: "active" | "inactive" | 'suspend';
 }
 
 export interface LoginDTO {

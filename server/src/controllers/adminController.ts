@@ -25,7 +25,7 @@ export class AdminController {
 
       const admin = await service.tambahAdmin(body);
 
-      successResponse(res, admin, "admin baru berhasil masuk", 201);
+      successResponse(res, 201, "admin baru berhasil masuk", admin);
     } catch (error: any) {
       res.status(error.status || 500).json({
         success: false,
@@ -49,7 +49,7 @@ export class AdminController {
 
       const admin = await service.updateStatus(parseInt(id), status_akun);
 
-      successResponse(res, admin, "Status akun berhasil diubah", 201);
+      successResponse(res, 201, "Status akun berhasil diubah", admin);
     } catch (error: any) {
       res.status(error.status || 500).json({
         success: false,
@@ -64,7 +64,7 @@ export class AdminController {
 
       const admin = await service.delete(parseInt(id));
 
-      successResponse(res, admin, "user berhasil dihapus", 201);
+      successResponse(res, 201, "user berhasil dihapus", admin);
     } catch (error: any) {
       res.status(error.status || 500).json({
         success: false,
@@ -84,8 +84,7 @@ export class AdminController {
       }
 
       const data = await service.getAllUser({ page, limit, search });
-
-      successResponse(res, data, "Akses data valid", 200);
+      successResponse(res, 200, "Akses data valid", data);
     } catch (error: any) {
       res.status(error.status || 500).json({
         success: false,

@@ -5,6 +5,7 @@ import {
   CreditCard,
   CalendarDays,
   BarChart3,
+  DollarSign,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -14,6 +15,7 @@ const navItems = [
   { path: "/admin/packages", label: "Packages", icon: Package },
   { path: "/admin/transactions", label: "Payments", icon: CreditCard },
   { path: "/admin/attendance", label: "Daily Attendance", icon: CalendarDays },
+  { path: "/admin/expenses", label: "Expenses", icon: DollarSign },
   { path: "/admin/reports", label: "Reports", icon: BarChart3 },
 ];
 

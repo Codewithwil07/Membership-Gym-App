@@ -1,25 +1,15 @@
-// models/transaksi.ts
-export interface CreateTransaksiDTO {
-  username?: string;
+
+export interface TransaksiDTO {
+  user_id: number;
   paket_id: number;
-  metode_pembayaran: string;
+  order_id: string;
+  jumlah_bayar: number;
+  status?: "pending" | "paid" | "failed";
+  metode_pembayaran?: string;
 }
 
-export interface UpdateVerifikasiDTO {
-  id: string;
-  status_verifikasi: "pending" | "verified" | "rejected";
-  verified_by: number;
-}
-
-export interface TransaksiResponse {
+export interface TransaksiResponse extends TransaksiDTO {
   id: number;
-  user_id: number | null;
-  paket_id: number;
-  tanggal_transaksi: Date;
-  metode_pembayaran: string;
-  bukti_pembayaran: string | null;
-  status_verifikasi: "pending" | "verified" | "rejected";
-  verified_by: number | null;
-  tanggal_verifikasi: Date | null;
-  catatan_admin: string | null;
+  created_at: Date;
+  updated_at: Date;
 }
