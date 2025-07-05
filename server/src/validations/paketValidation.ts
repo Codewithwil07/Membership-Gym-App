@@ -11,7 +11,6 @@ export const createPaketSchema = z.object({
     .number({ invalid_type_error: "Harga harus berupa angka" })
     .positive("Harga harus lebih dari 0"),
   deskripsi: z.string().optional(),
-  status_aktif: z.enum(['active', 'inactive']),
 });
 
 export const updatePaketSchema = z.object({
@@ -26,6 +25,4 @@ export const updatePaketSchema = z.object({
     .positive("Harga harus lebih dari 0")
     .optional(),
   deskripsi: z.string().optional(),
-  status_aktif: z.enum(['active', 'inactive']),
-
 });

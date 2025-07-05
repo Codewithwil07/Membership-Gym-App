@@ -8,7 +8,10 @@ const service = new PaketService(new PaketRepository());
 export class PaketController {
   static async create(req: Request, res: Response) {
     try {
+      
+      
       const data = await service.addPaket(req.body);
+      
       successResponse(res, 201, "Paket berhasil ditambahkan", data);
     } catch (error: any) {
       res.status(error.status || 500).json({

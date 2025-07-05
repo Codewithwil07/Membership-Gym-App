@@ -35,3 +35,9 @@ export interface getAllUsers {
   limit: number, 
   search?: string
 }
+
+export interface UpdateProfileDTO {
+  username?: string;
+  no_hp?: string;
+  foto?: string;
+}

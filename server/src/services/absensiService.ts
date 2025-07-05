@@ -16,18 +16,12 @@ export class AbsensiService {
       throw { status: 400, message: "Kartu tidak aktif atau sudah expired." };
     }
 
-    // ✅ Cek apakah sudah absen hari ini
-    const existingAbsen = await this.absensiRepo.findByUserIdAndDate(
-      user_id,
-      today
-    );
+    const existingAbsen = await this.absensiRepo.findByUserIdAndDate(user_id, today);
     if (existingAbsen) {
       throw { status: 400, message: "Anda sudah absen hari ini." };
     }
 
-    const keterangan = activeCard
-      ? "silahkan masuk"
-      : "silahkan perpanjang paket atau pulang";
+    const keterangan = "silahkan masuk";
 
     return await this.absensiRepo.create({
       user_id,
@@ -36,8 +30,9 @@ export class AbsensiService {
     });
   }
 
-  async getAllByAdmin(limit: number, offset: number, search?: string) {
-    return await this.absensiRepo.getAllByAdmin(limit, offset, search);
+  async getAllAbsensi24Jam(page: number, limit: number) {
+    const offset = (page - 1) * limit;
+    return await this.absensiRepo.getAllByAdmin({ limit, offset });
   }
 
   async getByUserId(user_id: number) {

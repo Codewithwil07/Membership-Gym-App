@@ -1,7 +1,5 @@
 // src/pages/AccountPage.tsx
-
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -11,27 +9,23 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input"; // Pastikan Input diimpor jika diperlukan
-import { Label } from "@/components/ui/label"; // Pastikan Label diimpor jika diperlukan
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   User as UserIcon,
-  Mail,
   Phone,
   Calendar,
-  Lock,
   Tag,
   CheckCircle,
   Ban,
-  Share2,
-  Copy,
 } from "lucide-react"; // Tambah Share2, Copy icons
 
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
+import { useAuth } from "@/context/AuthContext";
 
 const AccountPage: React.FC = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   // Data dummy user (akan diambil dari API nanti)
   const currentUser = {
@@ -57,40 +51,17 @@ const AccountPage: React.FC = () => {
     navigate("/account/edit-profile");
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/auth", { replace: true });
+    } catch (error) {
+      console.error("Logout error", error);
+    }
+  };
+
   const handleChangePassword = () => {
     alert("Mengarahkan ke halaman/modal ubah password.");
-  };
-
-  const handleCopyReferralCode = async () => {
-    try {
-      await navigator.clipboard.writeText(currentUser.referralCode);
-      alert("Kode referral berhasil disalin!");
-    } catch (err) {
-      console.error("Gagal menyalin kode: ", err);
-      alert("Gagal menyalin kode referral.");
-    }
-  };
-
-  const handleShareReferralCode = () => {
-    const shareText = `Yuk gabung GymFlow dan dapatkan diskon membership dengan kode referral saya: ${currentUser.referralCode}! Daftar sekarang di [Link Aplikasi Anda]`;
-
-    // Web Share API (jika didukung)
-    if (navigator.share) {
-      navigator
-        .share({
-          title: "Promo GymFlow dari Teman!",
-          text: shareText,
-          url: "https://aplikasi-gymflow.com", // Ganti dengan link aplikasi Anda
-        })
-        .then(() => console.log("Kode referral dibagikan."))
-        .catch((error) => console.error("Gagal berbagi:", error));
-    } else {
-      // Fallback untuk browser yang tidak mendukung Web Share API
-      alert(
-        `Bagikan kode referral Anda: ${currentUser.referralCode}\n\n${shareText}`
-      );
-      // Anda bisa menambahkan logika copy to clipboard di sini jika belum ada
-    }
   };
 
   const getAccountStatusIcon = (status: string) => {
@@ -119,7 +90,8 @@ const AccountPage: React.FC = () => {
 
         {/* Bagian Informasi Profil */}
         <Card className="bg-spotify-card-bg border border-spotify-border text-spotify-text-white rounded-xl shadow-lg p-5 md:p-6">
-          <CardHeader className="flex flex-col items-center text-center pb-4">\
+          <CardHeader className="flex flex-col items-center text-center pb-4">
+            \
             <Avatar className="w-24 h-24 mb-4 border-4 border-spotify-green shadow-md">
               <AvatarImage src={currentUser.avatarUrl} alt={currentUser.name} />
               <AvatarFallback className="bg-spotify-green/20 text-spotify-green text-4xl font-bold">
@@ -188,8 +160,8 @@ const AccountPage: React.FC = () => {
               Edit Profile
             </Button>
             <Button
-              onClick={handleEditProfile}
-              variant={'destructive'}
+              onClick={handleLogout}
+              variant={"destructive"}
               className="w-full text-spotify-black font-bold py-2 rounded-full hover:bg-opacity-90 transition-colors"
             >
               Logout

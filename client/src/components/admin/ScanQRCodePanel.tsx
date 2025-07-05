@@ -9,6 +9,23 @@ export default function ScanQRCodePanel({
 }) {
   const scannerRef = useRef<HTMLDivElement>(null);
 
+  // Fungsi untuk memainkan suara beep saat scan berhasil
+  const playBeep = () => {
+    const ctx = new AudioContext();
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    oscillator.type = "square";
+    oscillator.frequency.setValueAtTime(1000, ctx.currentTime); // 1000 Hz
+    gainNode.gain.setValueAtTime(0.1, ctx.currentTime); // volume kecil
+
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + 0.1); // durasi 100ms
+  };
+
   useEffect(() => {
     if (scannerRef.current) {
       const scanner = new Html5QrcodeScanner(
@@ -19,10 +36,11 @@ export default function ScanQRCodePanel({
 
       scanner.render(
         (decodedText) => {
+          playBeep(); // ⬅️ Mainkan suara beep saat scan berhasil
           onScan(decodedText);
         },
         (error) => {
-          // Handle scan error (optional: console.log(error))
+           console.log(error);
         }
       );
 

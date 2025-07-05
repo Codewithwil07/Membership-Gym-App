@@ -19,43 +19,25 @@ export class AbsensiRepository {
     );
     return rows[0];
   }
-
-  async getAllByAdmin({
-    limit,
-    offset,
-    search,
-  }: {
-    limit: number;
-    offset: number;
-    search?: string;
-  }) {
-    let sql = `
+  async getAllByAdmin({ limit, offset }: { limit: number; offset: number }) {
+    const sql = `
     SELECT a.*, u.username, u.no_hp 
     FROM absensi a 
     JOIN users u ON a.user_id = u.id
-    WHERE 1=1
+    WHERE a.created_at >= NOW() - INTERVAL 1 DAY
+    ORDER BY a.created_at DESC
+    LIMIT ? OFFSET ?
   `;
-    let countSql = `SELECT COUNT(*) as total FROM absensi a JOIN users u ON a.user_id = u.id WHERE 1=1`;
 
-    const params: any[] = [];
-    if (search) {
-      sql += ` AND (u.username LIKE ? OR u.no_hp LIKE ?)`;
-      countSql += ` AND (u.username LIKE ? OR u.no_hp LIKE ?)`;
-      params.push(`%${search}%`, `%${search}%`);
-    }
+    const countSql = `
+    SELECT COUNT(*) as total 
+    FROM absensi a 
+    JOIN users u ON a.user_id = u.id 
+    WHERE a.created_at >= NOW() - INTERVAL 1 DAY
+  `;
 
-    sql += ` ORDER BY a.created_at DESC LIMIT ? OFFSET ?`;
-    params.push(limit ?? 10, offset ?? 0);
-
-    console.log({ sql, params, countSql });
-
-    const [data]: any = await db.query(sql, params);
-
-    let countParams: any = [];
-    if (search) {
-      countParams = [`%${search}%`, `%${search}%`];
-    }
-    const [countRows]: any = await db.query(countSql, countParams);
+    const [data]: any = await db.query(sql, [limit, offset]);
+    const [countRows]: any = await db.query(countSql);
 
     return {
       data,

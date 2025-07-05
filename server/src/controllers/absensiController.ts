@@ -12,7 +12,6 @@ export class AbsensiController {
   static async absen(req: Request, res: Response) {
     try {
       const user_id = req.user.id;
-
       const absen = await absensiService.absen(user_id);
       return successResponse(res, 201, "Absensi berhasil", absen);
     } catch (error: any) {
@@ -23,20 +22,21 @@ export class AbsensiController {
     }
   }
 
-  static async getAllByAdmin(req: Request, res: Response) {
+  static async getAbsensi24Jam(req: Request, res: Response) {
     try {
-      const limit = parseInt(req.query.limit as string) || 10;
       const page = parseInt(req.query.page as string) || 1;
-      const offset = (page - 1) * limit;
-      const search = (req.query.search as string) || "";
+      const limit = parseInt(req.query.limit as string) || 10;
 
-      const result = await absensiService.getAllByAdmin(limit, offset, search);
+      const result = await absensiService.getAllAbsensi24Jam(page, limit);
 
-      return successResponse(res, 200, "Berhasil mengambil data absensi", {
+      return successResponse(res, 200, "Data absensi 24 jam terakhir berhasil diambil", {
         data: result.data,
-        total: result.total,
-        page,
-        limit,
+        pagination: {
+          total: result.total,
+          page,
+          limit,
+          totalPage: Math.ceil(result.total / limit),
+        },
       });
     } catch (error: any) {
       res.status(error.status || 500).json({
@@ -50,12 +50,7 @@ export class AbsensiController {
     try {
       const user_id = req.user.id;
       const absensi = await absensiService.getByUserId(user_id);
-      return successResponse(
-        res,
-        200,
-        "Berhasil mengambil data absensi",
-        absensi
-      );
+      return successResponse(res, 200, "Berhasil mengambil data absensi", absensi);
     } catch (error: any) {
       res.status(error.status || 500).json({
         success: false,

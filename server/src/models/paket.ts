@@ -3,7 +3,6 @@ export interface PaketDTO {
   durasi_hari: number;
   harga: number;
   deskripsi?: string;
-  status_aktif?: "active" | "inactive";
 }
 
 export interface PaketResponse extends PaketDTO {

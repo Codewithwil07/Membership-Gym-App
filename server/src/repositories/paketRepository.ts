@@ -4,29 +4,28 @@ import { PaketDTO } from "../models/paket";
 export class PaketRepository {
   async create(data: PaketDTO) {
     const sql = `
-      INSERT INTO paket_membership (nama_paket, durasi_hari, harga, deskripsi, status_aktif)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO paket_membership (nama_paket, durasi_hari, harga, deskripsi)
+      VALUES (?, ?, ?, ?)
     `;
     const [result]: any = await db.query(sql, [
       data.nama_paket,
       data.durasi_hari,
       data.harga,
       data.deskripsi || null,
-      data.status_aktif,
     ]);
     return { id: result.insertId, ...data };
   }
 
   async getAll() {
     const [rows]: any = await db.query(
-      "SELECT id, nama_paket, durasi_hari, harga, status_aktif FROM paket_membership"
+      "SELECT id, nama_paket, deskripsi, durasi_hari, harga  FROM paket_membership"
     );
     return rows;
   }
 
   async getById(id: number) {
     const [rows]: any = await db.query(
-      "SELECT id, nama_paket, durasi_hari, harga, status_aktif FROM paket_membership WHERE id = ?",
+      "SELECT id, nama_paket, durasi_hari, harga, deskripsi FROM paket_membership WHERE id = ?",
       [id]
     );
     return rows.length > 0 ? rows[0] : null;
@@ -36,7 +35,7 @@ export class PaketRepository {
     await db.query(
       `
       UPDATE paket_membership SET 
-        nama_paket = ?, durasi_hari = ?, harga = ?, deskripsi = ?, status_aktif = ?
+        nama_paket = ?, durasi_hari = ?, harga = ?, deskripsi = ?
       WHERE id = ?
     `,
       [
@@ -44,7 +43,6 @@ export class PaketRepository {
         data.durasi_hari,
         data.harga,
         data.deskripsi || null,
-        data.status_aktif,
         id,
       ]
     );

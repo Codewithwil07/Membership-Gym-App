@@ -9,7 +9,7 @@ const router = express.Router();
 router.post("/", protectRoute, AbsensiController.absen);
 
 // ✅ Get all absensi untuk admin (pagination + search)
-router.get("/", protectRoute, adminOnly, AbsensiController.getAllByAdmin);
+router.get("/", protectRoute, adminOnly, AbsensiController.getAbsensi24Jam);
 
 router.get("/member", protectRoute, AbsensiController.getByUserId);
 

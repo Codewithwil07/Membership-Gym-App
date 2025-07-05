@@ -1,10 +1,5 @@
 import db from "../config/db";
-import {
-  RegisterDTO,
-  ManageUser,
-  UserResponse,
-  getAllUsers,
-} from "../models/user";
+import { RegisterDTO, ManageUser, UserResponse, UpdateProfileDTO } from "../models/user";
 
 export class UserRepository {
   async create(user: RegisterDTO | ManageUser): Promise<UserResponse> {
@@ -47,7 +42,7 @@ export class UserRepository {
 
   async getById(id: number): Promise<UserResponse | null> {
     const [rows]: any = await db.query(
-      "SELECT id, username, email, no_hp, role, status_akun FROM users WHERE id = ?",
+      "SELECT id, username, email, no_hp, role, status_akun, foto FROM users WHERE id = ?",
       [id]
     );
     return rows[0] || null;
@@ -63,7 +58,7 @@ export class UserRepository {
     search: string;
   }) {
     let sql =
-      "SELECT id, username, email, role, status_akun FROM users WHERE 1=1";
+      "SELECT id, username, email, no_hp, role, status_akun, foto FROM users WHERE 1=1";
     let countSql = "SELECT COUNT(*) as total FROM users WHERE 1=1";
     const params: any[] = [];
 
@@ -88,24 +83,23 @@ export class UserRepository {
     };
   }
 
-async updateStatus(
-  id: number,
-  status: "active" | "inactive",
-  tanggalBergabung?: Date
-) {
-  if (status === "active" && tanggalBergabung) {
-    await db.query(
-      `UPDATE users SET status_akun = ?, tanggal_bergabung = IFNULL(tanggal_bergabung, ?) WHERE id = ?`,
-      [status, tanggalBergabung, id]
-    );
-  } else {
-    await db.query(
-      `UPDATE users SET status_akun = ? WHERE id = ?`,
-      [status, id]
-    );
+  async updateStatus(
+    id: number,
+    status: "active" | "inactive",
+    tanggalBergabung?: Date
+  ) {
+    if (status === "active" && tanggalBergabung) {
+      await db.query(
+        `UPDATE users SET status_akun = ?, tanggal_bergabung = IFNULL(tanggal_bergabung, ?) WHERE id = ?`,
+        [status, tanggalBergabung, id]
+      );
+    } else {
+      await db.query(`UPDATE users SET status_akun = ? WHERE id = ?`, [
+        status,
+        id,
+      ]);
+    }
   }
-}
-
 
   async delete(id: number): Promise<{ id: number }> {
     const [deleteResult]: any = await db.query(
@@ -126,5 +120,29 @@ async updateStatus(
       [id]
     );
     return rows[0] || null;
+  }
+
+  async updateProfile(id: number, data: UpdateProfileDTO) {
+    const fields = [];
+    const values = [];
+
+    if (data.username) {
+      fields.push("username = ?");
+      values.push(data.username);
+    }
+    if (data.no_hp) {
+      fields.push("no_hp = ?");
+      values.push(data.no_hp);
+    }
+    if (data.foto) {
+      fields.push("foto = ?");
+      values.push(data.foto);
+    }
+
+    if (fields.length === 0) return; // nothing to update
+
+    values.push(id);
+    const sql = `UPDATE users SET ${fields.join(", ")} WHERE id = ?`;
+    await db.query(sql, values);
   }
 }

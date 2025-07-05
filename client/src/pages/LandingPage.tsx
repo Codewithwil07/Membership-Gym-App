@@ -21,6 +21,8 @@ import {
   Clock,
   Dumbbell,
 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 interface MembershipPlan {
   name: string;
@@ -59,6 +61,27 @@ const GymLandingPage: React.FC = () => {
   const headerOpacity = useTransform(scrollY, [0, 100], [1, 0.95]);
   const heroY = useTransform(scrollY, [0, 300], [0, -50]);
   const [current, setCurrent] = useState(0);
+
+
+const { user, loading } = useAuth();
+const navigate = useNavigate();
+
+useEffect(() => {
+  document.title = "Landing page || PlatinumGym"
+  if (!loading && user) {
+    navigate(user.role === "admin" ? "/admin/dashboard" : "/dashboard", {
+      replace: true,
+    });
+  }
+}, [loading, user, navigate]);
+
+if (loading || user) {
+  return (
+    <div className="text-center mt-10 text-white animate-pulse">
+      Checking session...
+    </div>
+  );
+}
 
   const membershipPlans: MembershipPlan[] = [
     {
@@ -220,8 +243,8 @@ const GymLandingPage: React.FC = () => {
               animate={{ opacity: 1, x: 0 }}
               className="text-2xl font-bold text-green-400 flex items-center gap-x-3"
             >
-              <Dumbbell className="text-white"/>
-              FITZONE
+              <Dumbbell className="text-white" />
+              PlatinumGym
             </motion.div>
 
             {/* Desktop Menu */}

@@ -13,3 +13,11 @@ export interface TransaksiResponse extends TransaksiDTO {
   created_at: Date;
   updated_at: Date;
 }
+
+export interface LaporanKeuanganQuery {
+  month: string; // format YYYY-MM
+  page_pemasukan?: number;
+  limit_pemasukan?: number;
+  page_beban?: number;
+  limit_beban?: number;
+}
