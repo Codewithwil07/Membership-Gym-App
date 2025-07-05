@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface PaketFormData {
   nama_paket: string;
@@ -15,6 +16,7 @@ interface PaketFormData {
 }
 
 export default function PaketFormPage() {
+  const { toast } = useToast();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -45,14 +47,18 @@ export default function PaketFormPage() {
           });
         } catch (err) {
           console.error(err);
-          alert("Failed to fetch package data.");
+          toast({
+            title: "Gagal memuat data paket",
+            description: "Pastikan koneksi stabil atau hubungi admin.",
+            variant: "destructive",
+          });
         } finally {
           setLoading(false);
         }
       };
       fetchPaket();
     }
-  }, [id]);
+  }, [id, toast]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -76,19 +82,31 @@ export default function PaketFormPage() {
           credentials: "include",
           body: JSON.stringify(form),
         }
-        
       );
       const data = await res.json();
-      console.log(form);
+
       if (res.ok) {
-        alert(`Package ${id ? "updated" : "created"} successfully.`);
+        toast({
+          title: id ? "Paket berhasil diperbarui" : "Paket berhasil dibuat",
+          description: `Paket "${form.nama_paket}" telah ${
+            id ? "diperbarui" : "dibuat"
+          } dengan sukses.`,
+        });
         navigate("/admin/packages");
       } else {
-        alert(data.message || "Failed to submit package.");
+        toast({
+          title: "Gagal menyimpan paket",
+          description: data.message || "Terjadi kesalahan pada server.",
+          variant: "destructive",
+        });
       }
     } catch (err) {
       console.error(err);
-      alert("Error submitting package.");
+      toast({
+        title: "Terjadi kesalahan",
+        description: "Gagal menyimpan paket. Silakan coba lagi.",
+        variant: "destructive",
+      });
     } finally {
       setSubmitting(false);
     }
@@ -97,25 +115,25 @@ export default function PaketFormPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{id ? "Edit Package" : "Add Package"}</CardTitle>
+        <CardTitle>{id ? "Edit Paket" : "Tambah Paket"}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
         {loading ? (
           <div className="flex justify-center items-center py-10">
             <Loader2 className="animate-spin w-6 h-6 mr-2" />
-            Loading...
+            Memuat data...
           </div>
         ) : (
           <>
             <Input
-              placeholder="Package Name"
+              placeholder="Nama Paket"
               name="nama_paket"
               value={form.nama_paket}
               onChange={handleChange}
             />
             <Input
               className="no-spinner"
-              placeholder="Duration (days)"
+              placeholder="Durasi (hari)"
               type="number"
               name="durasi_hari"
               value={form.durasi_hari === 0 ? "" : Number(form.durasi_hari)}
@@ -123,20 +141,20 @@ export default function PaketFormPage() {
             />
             <Input
               className="no-spinner"
-              placeholder="Price"
+              placeholder="Harga"
               type="number"
               name="harga"
               value={form.harga === 0 ? "" : Number(form.harga)}
               onChange={handleChange}
             />
             <p className="text-sm ml-2">
-              as rupiah:
-              <span className="py-2 text-muted text-sm ml-2">
-                Rp. {Number(form.harga).toLocaleString("id-ID")}
+              Sebagai rupiah:
+              <span className="ml-2 text-muted-foreground">
+                Rp {Number(form.harga).toLocaleString("id-ID")}
               </span>
             </p>
             <Input
-              placeholder="Description"
+              placeholder="Deskripsi"
               name="deskripsi"
               value={form.deskripsi}
               onChange={handleChange}
@@ -145,12 +163,12 @@ export default function PaketFormPage() {
               {submitting ? (
                 <>
                   <Loader2 className="animate-spin w-4 h-4 mr-1" />
-                  Processing...
+                  Memproses...
                 </>
               ) : id ? (
-                "Update Package"
+                "Perbarui Paket"
               ) : (
-                "Create Package"
+                "Buat Paket"
               )}
             </Button>
           </>

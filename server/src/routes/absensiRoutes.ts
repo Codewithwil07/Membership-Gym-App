@@ -11,6 +11,6 @@ router.post("/", protectRoute, AbsensiController.absen);
 // ✅ Get all absensi untuk admin (pagination + search)
 router.get("/", protectRoute, adminOnly, AbsensiController.getAbsensi24Jam);
 
-router.get("/member", protectRoute, AbsensiController.getByUserId);
+router.get("/member/:id", protectRoute, AbsensiController.getByUserId);
 
 export default router;

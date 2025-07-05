@@ -1,10 +1,10 @@
 // src/pages/ReportPage.tsx
 
-import { useState, useEffect } from "react"; // Tambah useEffect
+import { useState, useEffect } from "react";
 import ReportFilter from "@/components/admin/ReportFilter";
-import ReportTable from "@/components/admin/ReportTable"; // Diasumsikan untuk pemasukan
+import ReportTable from "@/components/admin/ReportTable";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // Tambah Card
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -12,80 +12,133 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"; // Tambah Table components
+} from "@/components/ui/table";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
+import api from "@/api/axios";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 
-// Interface untuk Beban Operasional (sesuai ERD)
 interface BebanOperasional {
-  id: string;
-  namaBeban: string;
-  jumlahBeban: number;
-  kategoriBeban: string;
-  tanggalBeban: Date;
+  id: string | number;
+  nama: string;
+  jumlah: number;
+  tanggal: Date;
+  keterangan?: string;
 }
 
-// Interface untuk Pemasukan (dummy untuk contoh)
 interface Pemasukan {
-  id: string;
-  namaPemasukan: string; // Misal: Penjualan Paket Premium Bulanan
-  jumlahPemasukan: number;
-  tanggalPemasukan: Date;
+  id: string | number;
+  username: string;
+  nama_paket: string;
+  transaction_date: Date;
+  metode_pembayaran: string;
+  amount: number;
+  status: string;
 }
+
+interface PaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+}
+
+const ITEMS_PER_PAGE_PEMASUKAN = 5;
+const ITEMS_PER_PAGE_BEBAN = 5;
 
 export default function ReportPage() {
-  const [filters, setFilters] = useState<{ mode: string; date: string }>({
-    mode: "month", // Default filter mode
-    date: format(new Date(), 'yyyy-MM'), // Default current month
+  const [filters, setFilters] = useState<{ month: number; year: number }>({
+    month: new Date().getMonth() + 1,
+    year: new Date().getFullYear(),
   });
-
-  // --- DATA DUMMY ---
-  const dummyBebanOperasional: BebanOperasional[] = [
-    { id: 'bo001', namaBeban: 'Sewa Gedung', jumlahBeban: 5000000, kategoriBeban: 'Sewa', tanggalBeban: new Date('2025-06-01') },
-    { id: 'bo002', namaBeban: 'Gaji Karyawan', jumlahBeban: 15000000, kategoriBeban: 'Gaji Karyawan', tanggalBeban: new Date('2025-06-30') },
-    { id: 'bo003', namaBeban: 'Listrik & Air', jumlahBeban: 750000, kategoriBeban: 'Listrik & Air', tanggalBeban: new Date('2025-06-15') },
-    { id: 'bo004', namaBeban: 'Perbaikan Alat', jumlahBeban: 1200000, kategoriBeban: 'Perbaikan Alat', tanggalBeban: new Date('2025-05-20') },
-    { id: 'bo005', namaBeban: 'Iklan Digital', jumlahBeban: 800000, kategoriBeban: 'Marketing', tanggalBeban: new Date('2025-06-10') },
-  ];
-
-  const dummyPemasukan: Pemasukan[] = [
-    { id: 'pm001', namaPemasukan: 'Paket Premium Bulanan', jumlahPemasukan: 499000, tanggalPemasukan: new Date('2025-06-05') },
-    { id: 'pm002', namaPemasukan: 'Paket Gold 3 Bulan', jumlahPemasukan: 900000, tanggalPemasukan: new Date('2025-06-12') },
-    { id: 'pm003', namaPemasukan: 'Paket Elite Tahunan', jumlahPemasukan: 3000000, tanggalPemasukan: new Date('2025-06-18') },
-    { id: 'pm004', namaPemasukan: 'Penjualan Merchandise', jumlahPemasukan: 250000, tanggalPemasukan: new Date('2025-05-25') },
-    { id: 'pm005', namaPemasukan: 'Paket Premium Bulanan', jumlahPemasukan: 499000, tanggalPemasukan: new Date('2025-06-22') },
-  ];
-  // --- AKHIR DATA DUMMY ---
 
   const [filteredPemasukan, setFilteredPemasukan] = useState<Pemasukan[]>([]);
   const [filteredBeban, setFilteredBeban] = useState<BebanOperasional[]>([]);
 
-  useEffect(() => {
-    // Logika filtering dummy
-    // Dalam aplikasi nyata, Anda akan melakukan panggilan API ke backend
-    // dengan filter yang diberikan (mode dan date)
-    const filterData = (data: any[], dateKey: string) => {
-      if (!filters.date) return data;
+  const [pemasukanPage, setPemasukanPage] = useState(1);
+  const [pemasukanMeta, setPemasukanMeta] = useState<PaginationMeta>({
+    total: 0, page: 1, limit: ITEMS_PER_PAGE_PEMASUKAN
+  });
 
-      const filterDate = new Date(filters.date); // 'yyyy-MM' -> YYYY-MM-01
-      const startOfMonthFilter = new Date(filterDate.getFullYear(), filterDate.getMonth(), 1);
-      const endOfMonthFilter = new Date(filterDate.getFullYear(), filterDate.getMonth() + 1, 0); // Last day of month
+  const [bebanPage, setBebanPage] = useState(1);
+  const [bebanMeta, setBebanMeta] = useState<PaginationMeta>({
+    total: 0, page: 1, limit: ITEMS_PER_PAGE_BEBAN
+  });
 
-      return data.filter(item => {
-        const itemDate = new Date(item[dateKey]);
-        return itemDate >= startOfMonthFilter && itemDate <= endOfMonthFilter;
+  const [totalPemasukanApi, setTotalPemasukanApi] = useState<number>(0);
+  const [totalBebanApi, setTotalBebanApi] = useState<number>(0);
+  const [netProfitLossApi, setNetProfitLossApi] = useState<number>(0);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchReportData = async () => {
+    setLoading(true);
+    setError(null);
+
+    const monthFormatted = filters.month < 10 ? `0${filters.month}` : String(filters.month);
+    const dateApiFormat = `${filters.year}-${monthFormatted}`;
+
+    try {
+      const response = await api.get('/api/transaksi/laporan-keuangan', {
+        params: {
+          month: dateApiFormat,
+          page_pemasukan: pemasukanPage,
+          limit_pemasukan: ITEMS_PER_PAGE_PEMASUKAN,
+          page_pengeluaran: bebanPage,
+          limit_pengeluaran: ITEMS_PER_PAGE_BEBAN,
+        }
       });
-    };
 
-    setFilteredPemasukan(filterData(dummyPemasukan, 'tanggalPemasukan'));
-    setFilteredBeban(filterData(dummyBebanOperasional, 'tanggalBeban'));
+      const responseData = response.data.data;
 
-  }, [filters]); // Re-run effect when filters change
+      setTotalPemasukanApi(parseFloat(responseData.total_pemasukan || '0'));
+      setTotalBebanApi(parseFloat(responseData.total_beban || '0'));
+      setNetProfitLossApi(responseData.laba_rugi || 0);
 
-  // Menghitung Total
-  const totalPemasukan = filteredPemasukan.reduce((sum, item) => sum + item.jumlahPemasukan, 0);
-  const totalBeban = filteredBeban.reduce((sum, item) => sum + item.jumlahBeban, 0);
-  const netProfitLoss = totalPemasukan - totalBeban;
+      const parsedPemasukan = responseData.detail_pemasukan.data.map((item: any) => ({
+        ...item,
+        id: item.id || item.transaction_id,
+        amount: parseFloat(item.amount),
+        transaction_date: new Date(item.transaction_date),
+      }));
+      setFilteredPemasukan(parsedPemasukan);
+      setPemasukanMeta({
+        total: responseData.detail_pemasukan.total,
+        page: responseData.detail_pemasukan.page,
+        limit: responseData.detail_pemasukan.limit,
+      });
+
+      const parsedBeban = responseData.detail_beban.data.map((item: any) => ({
+        ...item,
+        jumlah: parseFloat(item.jumlah),
+        tanggal: new Date(item.tanggal),
+      }));
+      setFilteredBeban(parsedBeban);
+      setBebanMeta({
+        total: responseData.detail_beban.total,
+        page: responseData.detail_beban.page,
+        limit: responseData.detail_beban.limit,
+      });
+
+    } catch (err: any) {
+      console.error("Error fetching report data:", err);
+      setError(err?.response?.data?.message || "Gagal mengambil data laporan.");
+      setFilteredPemasukan([]);
+      setFilteredBeban([]);
+      setPemasukanMeta({ total: 0, page: 1, limit: ITEMS_PER_PAGE_PEMASUKAN });
+      setBebanMeta({ total: 0, page: 1, limit: ITEMS_PER_PAGE_BEBAN });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReportData();
+  }, [filters, pemasukanPage, bebanPage]);
+
+  const totalPemasukan = totalPemasukanApi;
+  const totalBeban = totalBebanApi;
+  const netProfitLoss = netProfitLossApi;
 
   const formatRupiah = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -94,6 +147,10 @@ export default function ReportPage() {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
+  };
+
+  const getActualTotalPages = (totalItems: number, limit: number) => {
+    return Math.ceil(totalItems / limit) || 1;
   };
 
   return (
@@ -105,13 +162,13 @@ export default function ReportPage() {
         </Button>
       </div>
 
-      {/* Filter Komponen */}
       <Card className="bg-spotify-card-bg border border-spotify-border text-spotify-text-white rounded-xl shadow-lg">
-        <CardHeader><CardTitle className="text-xl">Filter Laporan</CardTitle></CardHeader>
-        <CardContent><ReportFilter onFilterChange={setFilters} /></CardContent>
+        <CardHeader><CardTitle className="text-xl">Filter Laporan (Bulan & Tahun)</CardTitle></CardHeader>
+        <CardContent>
+          <ReportFilter onFilterChange={setFilters} />
+        </CardContent>
       </Card>
 
-      {/* Ringkasan Total Keuangan */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="bg-spotify-card-bg border border-spotify-border text-spotify-text-white rounded-xl shadow-lg">
           <CardHeader><CardTitle className="text-lg text-spotify-green">Total Pemasukan</CardTitle></CardHeader>
@@ -127,51 +184,89 @@ export default function ReportPage() {
         </Card>
       </div>
 
-      {/* Tabel Pemasukan */}
-      <Card className="bg-spotify-card-bg border border-spotify-border text-spotify-text-white rounded-xl shadow-lg">
-        <CardHeader><CardTitle className="text-xl">Detail Pemasukan</CardTitle></CardHeader>
-        <CardContent>
-          {/* Asumsikan ReportTable akan merender tabel pemasukan */}
-          <ReportTable filters={filters} data={filteredPemasukan} /> {/* Data pemasukan dikirimkan */}
-        </CardContent>
-      </Card>
+      {loading && <p className="text-center text-spotify-text-light-grey">Mengambil data laporan...</p>}
+      {error && <p className="text-center text-red-500">{error}</p>}
 
-      {/* Tabel Beban Operasional */}
-      <Card className="bg-spotify-card-bg border border-spotify-border text-spotify-text-white rounded-xl shadow-lg">
-        <CardHeader><CardTitle className="text-xl">Detail Beban Operasional</CardTitle></CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto rounded-md border border-spotify-border">
-            <Table>
-              <TableHeader className="bg-spotify-light-card-bg">
-                <TableRow>
-                  <TableHead className="text-spotify-text-light-grey">Nama Beban</TableHead>
-                  <TableHead className="text-spotify-text-light-grey">Jumlah</TableHead>
-                  <TableHead className="text-spotify-text-light-grey">Kategori</TableHead>
-                  <TableHead className="text-spotify-text-light-grey">Tanggal</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredBeban.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={4} className="h-24 text-center text-spotify-text-light-grey">
-                      Tidak ada data beban operasional untuk periode ini.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredBeban.map((beban) => (
-                    <TableRow key={beban.id} className="border-spotify-border hover:bg-spotify-light-card-bg">
-                      <TableCell className="font-medium text-spotify-text-white">{beban.namaBeban}</TableCell>
-                      <TableCell className="text-spotify-text-white">{formatRupiah(beban.jumlahBeban)}</TableCell>
-                      <TableCell className="text-spotify-text-light-grey">{beban.kategoriBeban}</TableCell>
-                      <TableCell className="text-spotify-text-light-grey">{format(beban.tanggalBeban, 'dd MMMMyyyy', { locale: idLocale })}</TableCell>
+      {!loading && !error && (
+        <>
+          <Card className="bg-spotify-card-bg border border-spotify-border text-spotify-text-white rounded-xl shadow-lg">
+            <CardHeader><CardTitle className="text-xl">Detail Pemasukan</CardTitle></CardHeader>
+            <CardContent>
+              <ReportTable filters={filters} data={filteredPemasukan} />
+              {getActualTotalPages(pemasukanMeta.total, pemasukanMeta.limit) > 1 && (
+                <div className="mt-4 flex justify-center">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationPrevious onClick={() => setPemasukanPage(pemasukanPage - 1)} disabled={pemasukanPage === 1} className={pemasukanPage === 1 ? 'text-spotify-text-dark-grey' : 'text-spotify-text-white hover:text-spotify-green hover:bg-transparent'} />
+                      {Array.from({ length: getActualTotalPages(pemasukanMeta.total, pemasukanMeta.limit) }, (_, i) => i + 1).map((page) => (
+                        <PaginationItem key={`pemasukan-page-${page}`}>
+                          <PaginationLink onClick={() => setPemasukanPage(page)} isActive={page === pemasukanPage} className={page === pemasukanPage ? 'bg-spotify-green text-spotify-black hover:bg-spotify-green' : 'text-spotify-text-white hover:text-spotify-green hover:bg-transparent'}>
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      ))}
+                      <PaginationNext onClick={() => setPemasukanPage(pemasukanPage + 1)} disabled={pemasukanPage === getActualTotalPages(pemasukanMeta.total, pemasukanMeta.limit)} className={pemasukanPage === getActualTotalPages(pemasukanMeta.total, pemasukanMeta.limit) ? 'text-spotify-text-dark-grey' : 'text-spotify-text-white hover:text-spotify-green hover:bg-transparent'} />
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-spotify-card-bg border border-spotify-border text-spotify-text-white rounded-xl shadow-lg">
+            <CardHeader><CardTitle className="text-xl">Detail Beban Operasional</CardTitle></CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto rounded-md border border-spotify-border">
+                <Table>
+                  <TableHeader className="bg-spotify-light-card-bg">
+                    <TableRow>
+                      <TableHead className="text-spotify-text-light-grey">Nama Beban</TableHead>
+                      <TableHead className="text-spotify-text-light-grey">Jumlah</TableHead>
+                      <TableHead className="text-spotify-text-light-grey">Keterangan</TableHead>
+                      <TableHead className="text-spotify-text-light-grey">Tanggal</TableHead>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredBeban.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="h-24 text-center text-spotify-text-light-grey">
+                          Tidak ada data beban operasional untuk periode ini.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredBeban.map((beban) => (
+                        <TableRow key={beban.id} className="border-spotify-border hover:bg-spotify-light-card-bg">
+                          <TableCell className="font-medium text-spotify-text-white">{beban.nama}</TableCell>
+                          <TableCell className="text-spotify-text-white">{formatRupiah(beban.jumlah)}</TableCell>
+                          <TableCell className="text-spotify-text-light-grey">{beban.keterangan}</TableCell>
+                          <TableCell className="text-spotify-text-light-grey">{format(beban.tanggal, 'dd MMMMyyyy', { locale: idLocale })}</TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+              {getActualTotalPages(bebanMeta.total, bebanMeta.limit) > 1 && (
+                <div className="mt-4 flex justify-center">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationPrevious onClick={() => setBebanPage(bebanPage - 1)} disabled={bebanPage === 1} className={bebanPage === 1 ? 'text-spotify-text-dark-grey' : 'text-spotify-text-white hover:text-spotify-green hover:bg-transparent'} />
+                      {Array.from({ length: getActualTotalPages(bebanMeta.total, bebanMeta.limit) }, (_, i) => i + 1).map((page) => (
+                        <PaginationItem key={`beban-page-${page}`}>
+                          <PaginationLink onClick={() => setBebanPage(page)} isActive={page === bebanPage} className={page === bebanPage ? 'bg-spotify-green text-spotify-black hover:bg-spotify-green' : 'text-spotify-text-white hover:text-spotify-green hover:bg-transparent'}>
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      ))}
+                      <PaginationNext onClick={() => setBebanPage(bebanPage + 1)} disabled={bebanPage === getActualTotalPages(bebanMeta.total, bebanMeta.limit)} className={bebanPage === getActualTotalPages(bebanMeta.total, bebanMeta.limit) ? 'text-spotify-text-dark-grey' : 'text-spotify-text-white hover:text-spotify-green hover:bg-transparent'} />
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </>
+      )}
     </main>
   );
 }

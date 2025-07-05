@@ -1,102 +1,87 @@
-interface Report {
-  id: number;
-  user: string;
-  packageName: string;
-  transactionDate: string;
-  paymentMethod: string;
-  amount: number;
+// src/components/admin/ReportTable.tsx
+
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"; // Import Shadcn Table components
+import { format } from "date-fns"; // Untuk format tanggal
+import { id as idLocale } from "date-fns/locale"; // Untuk lokal bahasa Indonesia
+
+// --- UPDATE INTERFACE AGAR SESUAI DENGAN INTERFACE PEMASUKAN DARI API ---
+interface PemasukanItem { // Ubah nama interface dari Report menjadi PemasukanItem agar tidak bentrok
+  id: string | number;
+  username: string;
+  nama_paket: string;
+  transaction_date: Date; // Ini akan menjadi objek Date karena sudah diparse di ReportPage
+  metode_pembayaran: string;
+  amount: number; // Ini akan menjadi number karena sudah diparse di ReportPage
   status: string;
 }
+// --- AKHIR UPDATE INTERFACE ---
 
-const dummyReports: Report[] = [
-  {
-    id: 1,
-    user: "John Doe",
-    packageName: "Gold",
-    transactionDate: "2025-06-19",
-    paymentMethod: "Bank Transfer",
-    amount: 500000,
-    status: "Verified",
-  },
-  {
-    id: 2,
-    user: "Jane Smith",
-    packageName: "Silver",
-    transactionDate: "2025-06-18",
-    paymentMethod: "Credit Card",
-    amount: 300000,
-    status: "Pending",
-  },
-];
-
+// --- UPDATE PROPS AGAR MENERIMA DATA DARI PARENT ---
 export default function ReportTable({
-  filters,
+  filters, // Filters masih bisa diterima jika ada tampilan/logika khusus berdasarkan filter, tapi tidak lagi digunakan untuk filtering data
+  data, // <<-- Data pemasukan yang sudah difilter dan dipaginasi dari ReportPage
 }: {
-  filters: { mode: string; date: string };
+  filters: { month: number; year: number; }; // Sesuaikan dengan tipe filter baru
+  data: PemasukanItem[]; // Tipe data yang diterima
 }) {
-  const filtered = dummyReports.filter((r) => {
-    if (!filters.mode || !filters.date) return true;
-    if (filters.mode === "day") return r.transactionDate === filters.date;
-    if (filters.mode === "month")
-      return r.transactionDate.startsWith(filters.date);
-    if (filters.mode === "year")
-      return r.transactionDate.startsWith(filters.date);
-    return true;
-  });
 
-  const total = filtered
-    .filter((r) => r.status === "Verified")
-    .reduce((sum, r) => sum + r.amount, 0);
+  const formatRupiah = (amount: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
 
   return (
-    <div className="bg-card p-4 rounded shadow">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b">
-            <th className="py-2 text-left">User</th>
-            <th className="py-2 text-left">Package</th>
-            <th className="py-2 text-left">Transaction Date</th>
-            <th className="py-2 text-left">Payment Method</th>
-            <th className="py-2 text-left">Amount</th>
-            <th className="py-2 text-left">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filtered.map((r) => (
-            <tr key={r.id} className="border-b hover:bg-muted/50">
-              <td className="py-2">{r.user}</td>
-              <td className="py-2">{r.packageName}</td>
-              <td className="py-2">{r.transactionDate}</td>
-              <td className="py-2">{r.paymentMethod}</td>
-              <td className="py-2">Rp {r.amount.toLocaleString()}</td>
-              <td className="py-2">
-                <span
-                  className={`px-2 py-1 rounded text-xs ${
-                    r.status === "Verified"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted"
-                  }`}
-                >
-                  {r.status}
-                </span>
-              </td>
-            </tr>
-          ))}
-          {filtered.length === 0 && (
-            <tr>
-              <td
-                colSpan={6}
-                className="py-2 text-center text-muted-foreground"
-              >
-                No report data found.
-              </td>
-            </tr>
+    <div className="overflow-x-auto rounded-md border border-spotify-border"> {/* Wrapper untuk scroll horizontal & border */}
+      <Table className="w-full">
+        <TableHeader className="bg-spotify-light-card-bg">
+          <TableRow>
+            <TableHead className="text-spotify-text-light-grey">User</TableHead>
+            <TableHead className="text-spotify-text-light-grey">Paket</TableHead>
+            <TableHead className="text-spotify-text-light-grey">Tgl. Transaksi</TableHead>
+            <TableHead className="text-spotify-text-light-grey">Metode Bayar</TableHead>
+            <TableHead className="text-spotify-text-light-grey text-right">Jumlah</TableHead> {/* Rata kanan untuk jumlah */}
+            <TableHead className="text-spotify-text-light-grey text-center">Status</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={6} className="h-24 text-center text-spotify-text-light-grey">
+                Tidak ada data pemasukan untuk periode ini.
+              </TableCell>
+            </TableRow>
+          ) : (
+            data.map((item) => (
+              <TableRow key={item.id} className="border-spotify-border hover:bg-spotify-light-card-bg">
+                <TableCell className="font-medium text-spotify-text-white">{item.username}</TableCell>
+                <TableCell className="text-spotify-text-white">{item.nama_paket}</TableCell>
+                {/* Pastikan transaction_date adalah objek Date */}
+                <TableCell className="text-spotify-text-light-grey">{format(item.transaction_date, 'dd MMMMyyyy', { locale: idLocale })}</TableCell>
+                <TableCell className="text-spotify-text-light-grey">{item.metode_pembayaran}</TableCell>
+                <TableCell className="text-spotify-text-white text-right">{formatRupiah(item.amount)}</TableCell> {/* Rata kanan */}
+                <TableCell className="text-center">
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${
+                      item.status === "sukses" || item.status === "settlement" || item.status === "capture"
+                        ? "bg-spotify-green text-spotify-black" // Status sukses/paid
+                        : item.status === "pending"
+                        ? "bg-yellow-500/20 text-yellow-500" // Status pending
+                        : "bg-red-500/20 text-red-500" // Status gagal/lainnya
+                    }`}
+                  >
+                    {item.status.toUpperCase()}
+                  </span>
+                </TableCell>
+              </TableRow>
+            ))
           )}
-        </tbody>
-      </table>
-      <div className="mt-2 text-right font-semibold">
-        Total Verified Revenue: Rp {total.toLocaleString()}
-      </div>
+        </TableBody>
+      </Table>
+      {/* Total Verified Revenue DIHAPUS dari sini, karena sudah ada di ReportPage */}
     </div>
   );
 }

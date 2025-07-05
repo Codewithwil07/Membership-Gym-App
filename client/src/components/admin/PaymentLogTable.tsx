@@ -18,6 +18,7 @@ interface Payment {
   id: number;
   user: string;
   packageName: string;
+  amount: number;
   transactionDate: string;
   paymentMethod: string;
   status: string;
@@ -33,7 +34,7 @@ export default function PaymentLogTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const rowsPerPage = 10;
+  const rowsPerPage = 5; // sesuai limit backend contoh kamu
 
   const fetchPayments = async () => {
     setLoading(true);
@@ -47,26 +48,26 @@ export default function PaymentLogTable() {
         sort: filterDate,
       });
 
-      const res = await fetch(`http://localhost:3000/api/transaksi/transaksi-data?${params}`, {
-        credentials: "include",
-      });
-
+      const res = await fetch(
+        `http://localhost:3000/api/transaksi/transaksi-data?${params}`,
+        { credentials: "include" }
+      );
       const data = await res.json();
 
       if (res.ok) {
-        // Pastikan response API return { data: [...], total: number }
         const apiPayments = data.data.data.map((item: any) => ({
           id: item.id,
           user: item.username,
           packageName: item.nama_paket,
+          amount: parseFloat(item.jumlah_bayar),
           transactionDate: item.created_at,
           paymentMethod: item.metode_pembayaran,
           status: item.status,
         }));
 
         setPayments(apiPayments);
-        // Contoh: kalau backend kirim total rows -> hitung totalPages
-        const total = data.total || rowsPerPage;
+
+        const total = data.data.total ?? rowsPerPage;
         setTotalPages(Math.ceil(total / rowsPerPage));
       } else {
         setError(data.message || "Failed to fetch payments.");
@@ -99,7 +100,7 @@ export default function PaymentLogTable() {
               }}
               className="w-full md:w-64"
             />
-            <div className="flex flex-col text-xs relative bottom-5">
+            <div className="flex flex-col text-xs">
               <span className="text-muted-foreground mb-1">Filter by date</span>
               <Select
                 value={filterDate}
@@ -136,8 +137,9 @@ export default function PaymentLogTable() {
                 <tr className="border-b">
                   <th className="py-2 text-left">User</th>
                   <th className="py-2 text-left">Package</th>
-                  <th className="py-2 text-left">Transaction Date</th>
-                  <th className="py-2 text-left">Payment Method</th>
+                  <th className="py-2 text-left">Amount</th>
+                  <th className="py-2 text-left">Date</th>
+                  <th className="py-2 text-left">Method</th>
                   <th className="py-2 text-left">Status</th>
                 </tr>
               </thead>
@@ -147,7 +149,12 @@ export default function PaymentLogTable() {
                     <tr key={p.id} className="border-b hover:bg-muted/50">
                       <td className="py-2">{p.user}</td>
                       <td className="py-2">{p.packageName}</td>
-                      <td className="py-2">{format(new Date(p.transactionDate), "yyyy-MM-dd")}</td>
+                      <td className="py-2">
+                        Rp. {p.amount.toLocaleString("id-ID")}
+                      </td>
+                      <td className="py-2">
+                        {format(new Date(p.transactionDate), "dd-MM-yyyy")}
+                      </td>
                       <td className="py-2">{p.paymentMethod}</td>
                       <td className="py-2">
                         <span
@@ -164,7 +171,10 @@ export default function PaymentLogTable() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="py-4 text-center text-muted-foreground">
+                    <td
+                      colSpan={6}
+                      className="py-4 text-center text-muted-foreground"
+                    >
                       No payments found.
                     </td>
                   </tr>
@@ -172,6 +182,7 @@ export default function PaymentLogTable() {
               </tbody>
             </table>
 
+            {/* Pagination */}
             <div className="flex justify-between items-center mt-4">
               <span className="text-sm text-muted-foreground">
                 Page {currentPage} of {totalPages}
@@ -188,7 +199,9 @@ export default function PaymentLogTable() {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(p + 1, totalPages))
+                  }
                   disabled={currentPage === totalPages}
                 >
                   Next

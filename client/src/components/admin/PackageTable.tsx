@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface Package {
   id: number;
@@ -13,9 +14,9 @@ interface Package {
 }
 
 export default function PaketTable() {
+  const { toast } = useToast();
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const fetchPackages = async () => {
@@ -25,20 +26,21 @@ export default function PaketTable() {
         credentials: "include",
       });
       const data = await res.json();
-      setPackages(data.data); // pastikan backendmu mengirim { data: [...] }
+      setPackages(data.data);
     } catch (err) {
       console.error(err);
-      setError("Failed to load packages");
+      toast({
+        title: "Gagal memuat paket",
+        description: "Periksa koneksi atau server Anda.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id: number) => {
-    const confirm = window.confirm(
-      "Are you sure you want to delete this package?"
-    );
-    if (!confirm) return;
+
     try {
       setDeletingId(id);
       const res = await fetch(`http://localhost:3000/admin/paket-hapus/${id}`, {
@@ -46,14 +48,27 @@ export default function PaketTable() {
         credentials: "include",
       });
       const data = await res.json();
+
       if (res.ok) {
         setPackages((prev) => prev.filter((p) => p.id !== id));
+        toast({
+          title: "Paket berhasil dihapus",
+          description: `Paket ID ${id} telah dihapus.`,
+        });
       } else {
-        alert(data.message || "Failed to delete package");
+        toast({
+          title: "Gagal menghapus paket",
+          description: data.message || "Terjadi kesalahan saat menghapus paket.",
+          variant: "destructive",
+        });
       }
     } catch (err) {
       console.error(err);
-      alert("Error deleting package");
+      toast({
+        title: "Error",
+        description: "Terjadi kesalahan saat menghapus paket.",
+        variant: "destructive",
+      });
     } finally {
       setDeletingId(null);
     }
@@ -67,9 +82,9 @@ export default function PaketTable() {
     <Card>
       <CardHeader>
         <div className="flex justify-between items-center">
-          <CardTitle>Package List</CardTitle>
+          <CardTitle>Daftar Paket</CardTitle>
           <Link to="/admin/packages/add">
-            <Button size="sm">Add Package</Button>
+            <Button size="sm">Tambah Paket</Button>
           </Link>
         </div>
       </CardHeader>
@@ -77,23 +92,21 @@ export default function PaketTable() {
         {loading ? (
           <div className="flex justify-center items-center py-10">
             <Loader2 className="animate-spin w-6 h-6 mr-2" />
-            Loading packages...
+            Memuat paket...
           </div>
-        ) : error ? (
-          <div className="text-center text-red-500 py-4">{error}</div>
         ) : packages.length === 0 ? (
           <div className="text-center text-muted-foreground py-4">
-            No packages found.
+            Tidak ada paket ditemukan.
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b">
-                <th className="py-2 text-left">Name</th>
-                <th className="py-2 text-left">Duration (days)</th>
-                <th className="py-2 text-left">Description</th>
-                <th className="py-2 text-left">Price</th>
-                <th className="py-2 text-left">Actions</th>
+                <th className="py-2 text-left">Nama</th>
+                <th className="py-2 text-left">Durasi (hari)</th>
+                <th className="py-2 text-left">Deskripsi</th>
+                <th className="py-2 text-left">Harga</th>
+                <th className="py-2 text-left">Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -103,7 +116,7 @@ export default function PaketTable() {
                   <td className="py-2">{pkg.durasi_hari}</td>
                   <td className="py-2">{pkg.deskripsi}</td>
                   <td className="py-2">
-                    Rp. {Number(pkg.harga).toLocaleString("id-ID")}
+                    Rp {Number(pkg.harga).toLocaleString("id-ID")}
                   </td>
                   <td className="py-2 space-x-2">
                     <Link to={`/admin/packages/edit/${pkg.id}`}>
@@ -119,11 +132,11 @@ export default function PaketTable() {
                     >
                       {deletingId === pkg.id ? (
                         <>
-                          <Loader2 className="animate-spin w-4 h-4 mr-1" />{" "}
-                          Deleting...
+                          <Loader2 className="animate-spin w-4 h-4 mr-1" />
+                          Menghapus...
                         </>
                       ) : (
-                        "Delete"
+                        "Hapus"
                       )}
                     </Button>
                   </td>

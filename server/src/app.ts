@@ -15,6 +15,7 @@ import paymentRoutes from "./routes/paymentRoutes";
 import absensiRoutes from "./routes/absensiRoutes";
 import bebanOperasionalRoutes from "./routes/bebanOperasionalRoutes";
 import transaksiRoutes from "./routes/transaksiRoutes";
+import kartuMemberRoutes from "./routes/kartuMemberRoutes";
 
 export class App {
   public app: Application;
@@ -43,6 +44,7 @@ export class App {
     this.app.use("/admin", adminRoutes);
     this.app.use("/admin", paketRoutes);
     this.app.use("/user", userRoutes);
+    this.app.use("/api/card", kartuMemberRoutes);
     this.app.use("/api/payment", paymentRoutes);
     this.app.use("/api/absensi", absensiRoutes);
     this.app.use("/api/beban-operasional", bebanOperasionalRoutes);

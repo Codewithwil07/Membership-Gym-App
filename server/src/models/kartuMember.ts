@@ -4,7 +4,7 @@ export interface KartuMemberDTO {
   qr_code: string;
   berlaku_dari: Date;
   berlaku_sampai: Date;
-  status?: "active" | "inactive";
+  status?: "active" | "inactive" | "expired";
 }
 
 export interface KartuMemberResponse extends KartuMemberDTO {

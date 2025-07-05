@@ -1,3 +1,4 @@
+import { RowDataPacket } from "mysql2";
 
 export interface TransaksiDTO {
   user_id: number;
@@ -20,4 +21,14 @@ export interface LaporanKeuanganQuery {
   limit_pemasukan?: number;
   page_beban?: number;
   limit_beban?: number;
+}
+
+export interface PaymentHistory extends RowDataPacket {
+    id: number;
+    order_id: string;
+    nama_paket: string;
+    jumlah_bayar: number;
+    status: string;
+    metode_pembayaran: string;
+    created_at: Date;
 }

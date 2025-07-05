@@ -36,6 +36,7 @@ interface BebanOperasional {
   id: number;
   nama: string;
   jumlah: number;
+  keterangan: string;
   tanggal: string;
 }
 
@@ -50,6 +51,7 @@ const BebanOperasionalPage = () => {
   const [form, setForm] = useState({
     nama: "",
     jumlah: "",
+    keterangan: "-",
     tanggal: "",
   });
   const [editId, setEditId] = useState<number | null>(null);
@@ -84,6 +86,7 @@ const BebanOperasionalPage = () => {
     setForm({
       nama: "",
       jumlah: "",
+      keterangan: "",
       tanggal: "",
     });
     setEditId(null);
@@ -91,7 +94,9 @@ const BebanOperasionalPage = () => {
   };
 
   const handleDelete = async (id: number) => {
-    await axios.delete(`http://localhost:3000/api/beban-operasional/${id}`);
+    await axios.delete(`http://localhost:3000/api/beban-operasional/${id}`, {
+      withCredentials: true,
+    });
     fetchData();
   };
 
@@ -99,6 +104,7 @@ const BebanOperasionalPage = () => {
     setForm({
       nama: item.nama,
       jumlah: String(item.jumlah),
+      keterangan: item.keterangan,
       tanggal: item.tanggal,
     });
     setEditId(item.id);
@@ -122,7 +128,7 @@ const BebanOperasionalPage = () => {
             <DialogTrigger asChild>
               <Button>Tambah Beban</Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent aria-describedby={""}>
               <DialogHeader>
                 <DialogTitle>
                   {editId ? "Edit" : "Tambah"} Beban Operasional
@@ -134,12 +140,20 @@ const BebanOperasionalPage = () => {
                   value={form.nama}
                   onChange={(e) => setForm({ ...form, nama: e.target.value })}
                 />
-                <Label>Jumlah Beban</Label>
+                <Label>Jumlah Beban (Rp)</Label>
                 <Input
                   className="no-spinner"
                   type="number"
                   value={form.jumlah}
                   onChange={(e) => setForm({ ...form, jumlah: e.target.value })}
+                />
+                <Label>Keterangan (Opsional)</Label>
+                <Input
+                  type="text"
+                  value={form.keterangan}
+                  onChange={(e) =>
+                    setForm({ ...form, keterangan: e.target.value })
+                  }
                 />
                 <Label>Tanggal Beban</Label>
                 <Input
@@ -163,24 +177,26 @@ const BebanOperasionalPage = () => {
             <TableRow>
               <TableHead>Nama Beban</TableHead>
               <TableHead>Jumlah</TableHead>
+              <TableHead>keterangan</TableHead>
               <TableHead>Tanggal</TableHead>
               <TableHead>Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data?.map((item) => {
-              const formatedDate = format(item.tanggal, "dd-mm-yyyy");
+              const formatedDate = format(item.tanggal, "dd-MM-yyyy");
               return (
                 <TableRow key={item.id}>
                   <TableCell>{item.nama}</TableCell>
                   <TableCell>
                     Rp. {item.jumlah.toLocaleString("id-ID")}
                   </TableCell>
+                  <TableCell>{item.keterangan}</TableCell>
                   <TableCell>{formatedDate}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Button size="sm" onClick={() => handleEdit(item)}>
-                        Edi
+                        Edit
                       </Button>
                       <Button
                         size="sm"

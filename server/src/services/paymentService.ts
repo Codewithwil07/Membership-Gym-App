@@ -53,8 +53,18 @@ export class PaymentService {
       }
     }
 
-    const order_id = `ORDER-${Date.now()}`;
-    const jumlah_bayar = paket.harga;
+    const order_id = `ORDER-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+    const jumlah_bayar = parseFloat(paket.harga);
+
+    if (isNaN(jumlah_bayar))
+      throw { status: 400, message: "Harga paket tidak valid." };
+
+    if (!user_id || !paket_id || !order_id) {
+      throw {
+        status: 400,
+        message: "user_id, paket_id, dan order_id tidak boleh kosong.",
+      };
+    }
 
     await this.transaksiRepo.create({
       user_id,
@@ -62,7 +72,7 @@ export class PaymentService {
       order_id,
       jumlah_bayar,
       status: "pending",
-      metode_pembayaran: payment_type || null,
+      metode_pembayaran: payment_type,
     });
 
     const snap = new midtransClient.Snap({
@@ -79,6 +89,8 @@ export class PaymentService {
       customer_details: {
         first_name: "Member",
       },
+      enabled_payments: payment_type ? [payment_type] : undefined,
+      finish_redirect_url: "http://localhost:5173/payment-result",
     };
 
     if (payment_type) {
@@ -152,7 +164,7 @@ export class PaymentService {
         });
       }
 
-    //   const user = await this.userRepo.findById(transaksi.user_id);
+      //   const user = await this.userRepo.findById(transaksi.user_id);
       await this.userRepo.updateStatus(
         transaksi.user_id,
         "active",
@@ -175,5 +187,10 @@ export class PaymentService {
     const now = dayjs().toDate();
     await this.kartuRepo.expireMemberships(now);
     console.log(this.kartuRepo);
+  }
+
+  static async getUserPaymentHistory(userId: number) {
+    const history = await TransaksiRepository.getUserPaymentHistory(userId);
+    return history;
   }
 }

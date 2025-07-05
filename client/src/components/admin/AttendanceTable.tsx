@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { format } from "date-fns";
 
 interface AbsensiData {
   id: number;
@@ -80,19 +81,24 @@ export default function AbsensiTable() {
               </thead>
               <tbody>
                 {data.length > 0 ? (
-                  data.map((a) => (
-                    <tr key={a.id} className="border-b hover:bg-muted/50">
-                      <td className="py-2">{a.username}</td>
-                      <td className="py-2">{a.tanggal}</td>
-                      <td
-                        className={`py-2 font-semibold ${
-                          a.status === "valid" ? "text-green-600" : "text-red-500"
-                        }`}
-                      >
-                        {a.status}
-                      </td>
-                    </tr>
-                  ))
+                  data.map((a) => {
+                    const formattedDate = format(a.tanggal, 'dd-MM-yyyy')
+                    return (
+                      <tr key={a.id} className="border-b hover:bg-muted/50">
+                        <td className="py-2">{a.username}</td>
+                        <td className="py-2">{formattedDate}</td>
+                        <td
+                          className={`py-2 font-semibold ${
+                            a.status === "valid"
+                              ? "text-green-600"
+                              : "text-red-500"
+                          }`}
+                        >
+                          {a.status}
+                        </td>
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
                     <td

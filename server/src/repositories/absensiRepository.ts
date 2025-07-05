@@ -14,27 +14,27 @@ export class AbsensiRepository {
     ]);
 
     const [rows]: any = await db.query(
-      `SELECT user_id, tanggal, keterangan FROM absensi WHERE id = ?`,
+      `SELECT id, user_id, tanggal, keterangan, created_at FROM absensi WHERE id = ?`,
       [result.insertId]
     );
     return rows[0];
   }
+
   async getAllByAdmin({ limit, offset }: { limit: number; offset: number }) {
     const sql = `
-    SELECT a.*, u.username, u.no_hp 
-    FROM absensi a 
-    JOIN users u ON a.user_id = u.id
-    WHERE a.created_at >= NOW() - INTERVAL 1 DAY
-    ORDER BY a.created_at DESC
-    LIMIT ? OFFSET ?
-  `;
-
+      SELECT a.id, a.user_id, u.username, u.no_hp, a.tanggal, a.keterangan, a.created_at 
+      FROM absensi a
+      JOIN users u ON a.user_id = u.id
+      WHERE a.created_at >= NOW() - INTERVAL 1 DAY
+      ORDER BY a.created_at DESC
+      LIMIT ? OFFSET ?
+    `;
     const countSql = `
-    SELECT COUNT(*) as total 
-    FROM absensi a 
-    JOIN users u ON a.user_id = u.id 
-    WHERE a.created_at >= NOW() - INTERVAL 1 DAY
-  `;
+      SELECT COUNT(*) as total 
+      FROM absensi a
+      JOIN users u ON a.user_id = u.id
+      WHERE a.created_at >= NOW() - INTERVAL 1 DAY
+    `;
 
     const [data]: any = await db.query(sql, [limit, offset]);
     const [countRows]: any = await db.query(countSql);
@@ -47,7 +47,10 @@ export class AbsensiRepository {
 
   async getByUserId(user_id: number): Promise<AbsensiResponse[]> {
     const [rows]: any = await db.query(
-      `SELECT user_id, tanggal, created_at FROM absensi WHERE user_id = ? ORDER BY created_at DESC`,
+      `SELECT id, user_id, tanggal, keterangan, created_at 
+       FROM absensi 
+       WHERE user_id = ? 
+       ORDER BY created_at DESC`,
       [user_id]
     );
     return rows;
@@ -55,7 +58,9 @@ export class AbsensiRepository {
 
   async findByUserIdAndDate(user_id: number, tanggal: string) {
     const [rows]: any = await db.query(
-      "SELECT user_id, tanggal FROM absensi WHERE user_id = ? AND tanggal = ?",
+      `SELECT id, user_id, tanggal 
+       FROM absensi 
+       WHERE user_id = ? AND tanggal = ?`,
       [user_id, tanggal]
     );
     return rows[0] || null;

@@ -1,4 +1,6 @@
 // src/pages/AccountPage.tsx
+
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Card,
@@ -17,38 +19,42 @@ import {
   Tag,
   CheckCircle,
   Ban,
-} from "lucide-react"; // Tambah Share2, Copy icons
-
+} from "lucide-react";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import { useAuth } from "@/context/AuthContext";
+import axios from "axios";
 
 const AccountPage: React.FC = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth(); // pastikan AuthContext memiliki user dengan id
 
-  // Data dummy user (akan diambil dari API nanti)
-  const currentUser = {
-    id: 1,
-    username: "budisantoso",
-    name: "Budi Santoso",
-    avatarUrl: "https://github.com/shadcn.png",
-    avatarInitials: "BS",
-    email: "budi.santoso@example.com",
-    phoneNumber: "0812-3456-7890",
-    role: "member",
-    accountStatus: "aktif",
-    joinDate: new Date("2024-01-15"),
-    membershipTier: "Gold Member",
-    referralCode: "BUDI2025GYM", // <<-- KODE REFERRAL BARU DI SINI
-  };
+  const [profile, setProfile] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const formattedJoinDate = format(currentUser.joinDate, "dd MMMMyyyy", {
-    locale: idLocale,
-  });
+  const userId = user?.id; // sementara pakai 38 untuk testing
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/user/profile/${userId}`,
+          { withCredentials: true }
+        );
+        setProfile(response.data.data);
+        setIsLoading(false);
+      } catch (err) {
+        console.error(err);
+        setError("Gagal mengambil data profil.");
+        setIsLoading(false);
+      }
+    };
+    fetchProfile();
+  }, [userId]);
 
   const handleEditProfile = () => {
-    navigate("/account/edit-profile");
+    navigate(`/account/edit-profile/${userId}`);
   };
 
   const handleLogout = async () => {
@@ -60,49 +66,50 @@ const AccountPage: React.FC = () => {
     }
   };
 
-  const handleChangePassword = () => {
-    alert("Mengarahkan ke halaman/modal ubah password.");
+  const getAccountStatusIcon = (status: string) => {
+    const lowerStatus = status.toLowerCase();
+    if (lowerStatus === "active" || lowerStatus === "aktif") {
+      return <CheckCircle size={20} className="text-spotify-green" />;
+    }
+    return <Ban size={20} className="text-red-500" />;
   };
 
-  const getAccountStatusIcon = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "aktif":
-        return <CheckCircle size={20} className="text-spotify-green" />;
-      case "nonaktif":
-        return <Ban size={20} className="text-red-500" />;
-      case "suspended":
-        return <Ban size={20} className="text-yellow-500" />;
-      default:
-        return null;
-    }
-  };
+  if (isLoading) {
+    return (
+      <p className="text-center text-spotify-text-white mt-10">Loading...</p>
+    );
+  }
+
+  if (error) {
+    return <p className="text-center text-red-500 mt-10">{error}</p>;
+  }
+
+  const formattedJoinDate = format(new Date(), "dd MMMM yyyy", {
+    locale: idLocale,
+  }); // backend tidak kirim joinDate, pakai placeholder
 
   return (
     <div className="p-4 md:p-6 space-y-6">
       <div className="max-w-screen-md mx-auto bg-spotify-card-bg rounded-xl shadow-2xl p-4 space-y-6 md:p-6 md:space-y-8">
-        {/* Header Halaman */}
         <h1 className="text-2xl md:text-3xl font-bold text-spotify-text-white leading-tight">
           Pengaturan <span className="text-spotify-green">Akun</span>
         </h1>
         <p className="text-spotify-text-light-grey text-sm md:text-base mb-8">
           Kelola informasi pribadi dan keamanan akun Anda.
         </p>
-
-        {/* Bagian Informasi Profil */}
         <Card className="bg-spotify-card-bg border border-spotify-border text-spotify-text-white rounded-xl shadow-lg p-5 md:p-6">
           <CardHeader className="flex flex-col items-center text-center pb-4">
-            \
             <Avatar className="w-24 h-24 mb-4 border-4 border-spotify-green shadow-md">
-              <AvatarImage src={currentUser.avatarUrl} alt={currentUser.name} />
+              <AvatarImage src={profile.foto ?? ""} alt={profile.username} />
               <AvatarFallback className="bg-spotify-green/20 text-spotify-green text-4xl font-bold">
-                {currentUser.avatarInitials}
+                {profile.username?.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <CardTitle className="text-2xl font-bold">
-              {currentUser.name}
+              {profile.username}
             </CardTitle>
             <CardDescription className="text-spotify-text-light-grey text-base">
-              {currentUser.membershipTier}
+              {profile.email}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 px-6">
@@ -111,7 +118,7 @@ const AccountPage: React.FC = () => {
               <span>
                 Username:{" "}
                 <span className="font-semibold text-spotify-text-white">
-                  {currentUser.username}
+                  {profile.username}
                 </span>
               </span>
             </div>
@@ -120,7 +127,7 @@ const AccountPage: React.FC = () => {
               <span>
                 Telepon:{" "}
                 <span className="font-semibold text-spotify-text-white">
-                  {currentUser.phoneNumber}
+                  {profile.no_hp ?? "-"}
                 </span>
               </span>
             </div>
@@ -129,16 +136,16 @@ const AccountPage: React.FC = () => {
               <span>
                 Role:{" "}
                 <span className="font-semibold capitalize text-spotify-text-white">
-                  {currentUser.role}
+                  {profile.role}
                 </span>
               </span>
             </div>
             <div className="flex items-center gap-3 text-spotify-text-light-grey">
-              {getAccountStatusIcon(currentUser.accountStatus)}
+              {getAccountStatusIcon(profile.status_akun)}
               <span>
                 Status Akun:{" "}
                 <span className="font-semibold capitalize text-spotify-text-white">
-                  {currentUser.accountStatus}
+                  {profile.status_akun}
                 </span>
               </span>
             </div>
@@ -168,7 +175,6 @@ const AccountPage: React.FC = () => {
             </Button>
           </CardFooter>
         </Card>
-        {/* --- AKHIR BAGIAN BARU: KODE REFERRAL SAYA --- */}
       </div>
     </div>
   );

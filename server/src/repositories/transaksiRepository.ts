@@ -1,5 +1,5 @@
 import db from "../config/db";
-import { TransaksiDTO } from "../models/transaksi";
+import { PaymentHistory, TransaksiDTO } from "../models/transaksi";
 
 export class TransaksiRepository {
   async create(data: TransaksiDTO) {
@@ -16,6 +16,9 @@ export class TransaksiRepository {
       data.status || "pending",
       data.metode_pembayaran || null,
     ]);
+
+    
+
     return { id: result.insertId, ...data };
   }
 
@@ -92,7 +95,7 @@ export class TransaksiRepository {
 
   async getDetailBeban(month: string, limit: number, offset: number) {
     const [rows]: any = await db.query(
-      `SELECT id, nama, jumlah, tanggal 
+      `SELECT id, nama, jumlah, keterangan, tanggal 
        FROM beban_operasional 
        WHERE DATE_FORMAT(tanggal, '%Y-%m') = ?
        ORDER BY tanggal DESC 
@@ -151,5 +154,26 @@ export class TransaksiRepository {
     );
 
     return { data: rows, total };
+  }
+
+  static async getUserPaymentHistory(
+    userId: number
+  ): Promise<PaymentHistory[]> {
+    const [rows] = await db.query<PaymentHistory[]>(
+      `SELECT 
+                t.id,
+                t.order_id,
+                p.nama_paket,
+                t.jumlah_bayar,
+                t.status,
+                t.metode_pembayaran,
+                t.created_at
+             FROM transaksi_membership t
+             JOIN paket_membership p ON t.paket_id = p.id
+             WHERE t.user_id = ?
+             ORDER BY t.created_at DESC`,
+      [userId]
+    );
+    return rows;
   }
 }

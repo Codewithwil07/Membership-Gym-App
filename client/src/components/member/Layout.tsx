@@ -1,27 +1,55 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { Home, Package, Percent, User, DumbbellIcon } from "lucide-react";
+import axios from "axios";
+import { useAuth } from "@/context/AuthContext";
+
+// Avatar fallback component
+const AvatarFallback = () => (
+  <div className="w-8 h-8 rounded-full bg-spotify-light-border flex items-center justify-center">
+    <User size={18} />
+  </div>
+);
 
 type LayoutProps = {
   children: React.ReactNode;
 };
 
-// Data untuk link navigasi mobile
 const mobileNavLinks = [
   { href: "/dashboard", label: "Home", icon: Home },
   { href: "/packages", label: "Paket", icon: Package },
-  // { href: "/promo", label: "Promo", icon: Percent },
+  { href: "/payment/history", label: "Payments", icon: Percent },
   { href: "/account", label: "Akun", icon: User },
 ];
 
-// Data untuk link navigasi desktop (tanpa profil)
 const desktopNavLinks = [
   { href: "/dashboard", label: "Home" },
   { href: "/packages", label: "Paket" },
-  // { href: "/promo", label: "Promo" },
+  { href: "/payment/history", label: "Payments" },
 ];
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const { user } = useAuth(); // pastikan AuthContext memiliki user dengan id
+  const userId = user?.id || null;
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await axios.get(`http://localhost:3000/user/profile/${userId}`, {
+          withCredentials: true,
+        });
+        setProfilePhoto(res.data.data.foto || null);
+        console.log(res.data.data.foto);
+      } catch (error) {
+        console.error("Failed to fetch profile photo:", error);
+        setProfilePhoto(null);
+      }
+    };
+
+    fetchProfile();
+  }, [userId]);
+
   return (
     <div className="bg-spotify-dark min-h-screen text-white">
       {/* ======================= */}
@@ -29,7 +57,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* ======================= */}
       <header className="hidden md:flex justify-between items-center px-8 h-16 border-b border-spotify-light-border">
         <Link to="/" className="text-xl font-bold text-gold flex gap-x-1">
-          <DumbbellIcon className="text-spotify-green" />{" "}
+          <DumbbellIcon className="text-spotify-green" />
           <span>Platinum Gym</span>
         </Link>
         <nav className="flex items-center space-x-8 h-full">
@@ -48,12 +76,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               {link.label}
             </NavLink>
           ))}
-          {/* Link Profil tetap terpisah karena stylenya berbeda */}
+
+          {/* Foto Profil */}
           <NavLink
             to="/account"
-            className="rounded-full transition-colors p-2 bg-spotify-light-border text-white"
+            className="rounded-full transition-colors p-0 border border-spotify-light-border overflow-hidden w-8 h-8 flex items-center justify-center"
           >
-            <User size={20} />
+            {profilePhoto ? (
+              <img
+                src={profilePhoto}
+                alt="Profile"
+                className="object-cover w-full h-full"
+              />
+            ) : (
+              <AvatarFallback />
+            )}
           </NavLink>
         </nav>
       </header>
@@ -67,7 +104,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <NavLink
               key={link.href}
               to={link.href}
-              end={link.href === "/"} // Prop 'end' hanya untuk link root
+              end={link.href === "/"}
               className={({ isActive }) =>
                 `flex flex-col items-center justify-center w-full h-full transition-colors ${
                   isActive
@@ -76,7 +113,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 }`
               }
             >
-              <link.icon size={24} />
+              {link.href === "/account" && profilePhoto ? (
+                <img
+                  src={profilePhoto}
+                  alt="Profile"
+                  className="rounded-full w-6 h-6 object-cover"
+                />
+              ) : (
+                <link.icon size={24} />
+              )}
               <span className="text-[10px] mt-1">{link.label}</span>
             </NavLink>
           ))}
@@ -86,9 +131,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* ======================= */}
       {/* ==   KONTEN HALAMAN  == */}
       {/* ======================= */}
-      <main className="p-4 sm:p-6 pb-24 md:pb-6 md:pt-6">
-        {children}
-      </main>
+      <main className="p-4 sm:p-6 pb-24 md:pb-6 md:pt-6">{children}</main>
     </div>
   );
 };

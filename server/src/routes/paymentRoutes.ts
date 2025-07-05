@@ -5,5 +5,11 @@ import { protectRoute } from "../middlewares/authMiddleware";
 
 const router = Router();
 router.post("/create", protectRoute, PaymentController.createPayment);
-router.post("/webhook", PaymentController.handleWebhook);
+router.post("/notification", PaymentController.handleWebhook);
+
+router.get("/history", protectRoute, PaymentController.getUserPaymentHistory);
 export default router;
+router.get("/ping", (req, res) => {
+  console.log("PING RECEIVED");
+  res.json({ message: "Pong" });
+});

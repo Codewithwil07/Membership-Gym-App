@@ -1,0 +1,178 @@
+└── 📁server
+    └── 📁src
+        ├── app.ts
+        ├── server.ts
+
+        ├── 📁config
+        │   └── db.ts
+        │   └── logger.ts          # (optional) untuk logging
+
+        ├── 📁controllers
+        │   └── authController.ts
+        │   └── memberController.ts
+        │   └── paketController.ts
+        │   └── transaksiController.ts
+        │   └── absensiController.ts
+        │   └── reportController.ts
+
+        ├── 📁middlewares
+        │   └── AdminOnly.ts
+        │   └── authMiddleware.ts
+        │   └── errorHandler.ts
+        │   └── validate.ts        # validasi input (optional)
+        
+        ├── 📁models
+        │   └── user.ts
+        │   └── member.ts
+        │   └── paket.ts
+        │   └── transaksi.ts
+        │   └── absensi.ts
+        
+        ├── 📁repositories
+        │   └── userRepository.ts
+        │   └── memberRepository.ts
+        │   └── paketRepository.ts
+        │   └── transaksiRepository.ts
+        │   └── absensiRepository.ts
+        
+        ├── 📁routes
+        │   └── authRoutes.ts
+        │   └── memberRoutes.ts
+        │   └── paketRoutes.ts
+        │   └── transaksiRoutes.ts
+        │   └── absensiRoutes.ts
+        │   └── reportRoutes.ts
+        
+        ├── 📁services
+        │   └── authService.ts
+        │   └── memberService.ts
+        │   └── paketService.ts
+        │   └── transaksiService.ts
+        │   └── absensiService.ts
+        │   └── reportService.ts
+        
+        ├── 📁utils
+        │   └── jwtUtils.ts
+        │   └── response.ts
+        │   └── dateUtils.ts        # (optional) untuk format tanggal
+        
+        ├── 📁validations
+        │   └── authValidation.ts
+        │   └── memberValidation.ts
+        │   └── paketValidation.ts
+        │   └── transaksiValidation.ts
+        │   └── absensiValidation.ts
+        │   └── reportValidation.ts
+
+    ├── .env
+    ├── .gitignore
+    ├── package-lock.json
+    ├── package.json
+    ├── tsconfig.json
+
+
+
+Tentu! Berikut **catatan ringkas status code HTTP** yang umum digunakan, lengkap dengan deskripsi singkat:
+
+---
+
+### 📌 **1xx Informational**
+
+| Code | Nama                | Keterangan                             |
+| ---- | ------------------- | -------------------------------------- |
+| 100  | Continue            | Permintaan diterima, lanjutkan proses. |
+| 101  | Switching Protocols | Server setuju ganti protokol.          |
+| 102  | Processing (WebDAV) | Server sedang memproses permintaan.    |
+
+---
+
+### 📌 **2xx Success**
+
+| Code | Nama       | Keterangan                                     |
+| ---- | ---------- | ---------------------------------------------- |
+| 200  | OK         | Permintaan berhasil.                           |
+| 201  | Created    | Sumber daya berhasil dibuat.                   |
+| 202  | Accepted   | Permintaan diterima untuk diproses.            |
+| 204  | No Content | Permintaan berhasil, tidak ada konten dikirim. |
+
+---
+
+### 📌 **3xx Redirection**
+
+| Code | Nama                      | Keterangan                                      |
+| ---- | ------------------------- | ----------------------------------------------- |
+| 301  | Moved Permanently         | URL sudah pindah permanen.                      |
+| 302  | Found (Moved Temporarily) | URL sementara dipindahkan.                      |
+| 304  | Not Modified              | Konten tidak berubah sejak permintaan terakhir. |
+
+---
+
+### 📌 **4xx Client Error**
+
+| Code | Nama                 | Keterangan                                        |
+| ---- | -------------------- | ------------------------------------------------- |
+| 400  | Bad Request          | Permintaan tidak valid.                           |
+| 401  | Unauthorized         | Autentikasi diperlukan.                           |
+| 403  | Forbidden            | Akses ditolak.                                    |
+| 404  | Not Found            | Sumber daya tidak ditemukan.                      |
+| 405  | Method Not Allowed   | Metode HTTP tidak diizinkan.                      |
+| 409  | Conflict             | Konflik pada permintaan.                          |
+| 422  | Unprocessable Entity | Permintaan tidak dapat diproses (misal validasi). |
+
+---
+
+### 📌 **5xx Server Error**
+
+| Code | Nama                  | Keterangan                                   |
+| ---- | --------------------- | -------------------------------------------- |
+| 500  | Internal Server Error | Kesalahan di server.                         |
+| 501  | Not Implemented       | Server tidak mendukung fitur tersebut.       |
+| 502  | Bad Gateway           | Server mendapat respons buruk dari upstream. |
+| 503  | Service Unavailable   | Server tidak tersedia sementara.             |
+| 504  | Gateway Timeout       | Timeout dari server upstream.                |
+
+---
+
+⚡ **Tips mengingat umum:**
+
+* `2xx` = Berhasil
+* `3xx` = Redirect
+* `4xx` = Salah di sisi klien
+* `5xx` = Salah di sisi server
+
+Kalau mau saya bantu jadikan **file markdown, pdf, atau diagram** untuk catatan ini, tinggal bilang ya! 🚀
+Roadmap Admin Panel (biar jelas dan gak lompat-lompat)
+1️⃣ User Management
+✅ Get all users + pagination + search + filter status
+
+✅ Tambah admin / member
+
+✅ Edit status_akun
+
+✅ Delete user
+
+2️⃣ Paket Membership Management
+✅ CRUD paket (create, read, update, delete)
+
+✅ Search + filter status aktif
+
+✅ Pagination
+
+3️⃣ Transaksi Management
+✅ Get all transaksi + pagination + search + filter newest / oldest
+
+⏳ Create transaksi (simulasi manual dulu, nanti link ke member)
+
+⏳ Verifikasi transaksi (update status + isi tanggal_verifikasi + tanggal_bergabung user)
+
+4️⃣ Absensi Management
+⏳ List absensi + pagination + search
+
+⏳ Tambah absensi manual
+
+⏳ Scan QR (nanti di link ke kartu_member)
+
+5️⃣ Report & Statistik
+⏳ Laporan keuangan (filter per hari / bulan / tahun)
+
+⏳ Statistik attendance (chart / table)

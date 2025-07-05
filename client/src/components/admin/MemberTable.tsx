@@ -1,3 +1,5 @@
+// src/pages/admin/MemberTable.tsx
+
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,10 +13,19 @@ interface Member {
   email: string;
   status_akun: "Active" | "Inactive";
   role: "admin" | "member";
-  photo: string;
+  foto: string;
 }
 
 const itemsPerPage = 5;
+
+// Utility to generate initials
+const getInitials = (name: string) =>
+  name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
 export default function MemberTable() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -35,8 +46,7 @@ export default function MemberTable() {
         withCredentials: true,
       });
       setMembers(res.data.data.data);
-       setTotal(res.data.data.pagination.total);
-      
+      setTotal(res.data.data.pagination.total);
     } catch (error) {
       console.error("Failed to fetch members:", error);
     } finally {
@@ -49,7 +59,7 @@ export default function MemberTable() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, searchTerm]);
 
-  const totalPages = Math.ceil(total / itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(total / itemsPerPage));
 
   return (
     <Card>
@@ -78,7 +88,7 @@ export default function MemberTable() {
               <tr className="border-b">
                 <th className="py-2 text-left">Photo</th>
                 <th className="py-2 text-left">Username</th>
-                <th className="py-2 text-left">no_hp</th>
+                <th className="py-2 text-left">Phone</th>
                 <th className="py-2 text-left">Email</th>
                 <th className="py-2 text-left">Role</th>
                 <th className="py-2 text-left">Account Status</th>
@@ -89,11 +99,21 @@ export default function MemberTable() {
                 members.map((member) => (
                   <tr key={member.id} className="border-b hover:bg-muted/50">
                     <td className="py-2">
-                      <img
-                        src={member.photo}
-                        alt={member.username}
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
+                      {member.foto ? (
+                        <img
+                          src={member.foto}
+                          alt={member.username}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display =
+                              "none";
+                          }}
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-spotify-green text-black flex items-center justify-center text-xs font-bold uppercase">
+                          {getInitials(member.username)}
+                        </div>
+                      )}
                     </td>
                     <td className="py-2">{member.username}</td>
                     <td className="py-2">{member.no_hp}</td>
@@ -103,7 +123,7 @@ export default function MemberTable() {
                       <span
                         className={`px-2 py-1 rounded text-xs ${
                           member.status_akun === "Active"
-                            ? "bg-green-500 text-white"
+                            ? "bg-spotify-green text-black"
                             : "bg-gray-300 text-gray-700"
                         }`}
                       >
@@ -126,7 +146,7 @@ export default function MemberTable() {
           </table>
         )}
 
-        {true && (
+        {totalPages > 1 && (
           <div className="flex justify-end items-center gap-2 mt-4">
             <Button
               variant="outline"
