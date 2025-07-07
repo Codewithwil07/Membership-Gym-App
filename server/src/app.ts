@@ -33,8 +33,11 @@ export class App {
     this.app.use(cookieParser());
     this.app.use(
       cors({
-        origin: "http://localhost:5173", // atau environment FE kamu
-        credentials: true,
+        origin:[
+          "http://localhost:5173", // atau environment FE kamu
+          "https://membership-gym-app.vercel.app"
+        ], 
+          credentials: true,
       })
     );
   }

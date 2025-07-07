@@ -5,15 +5,18 @@
     "moduleResolution": "node",    
     "outDir": "./dist",            // Folder hasil build
     "rootDir": "./src",            // Folder source code
-    "strict": true,                // Strict typing
+    "strict": false,                // Strict typing
     "esModuleInterop": true,       // Agar import commonjs bisa lancar
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "sourceMap": true,
     "resolveJsonModule": true,
     "noImplicitAny": true,
-    "lib": ["ES2022"]
+    "lib": ["ES2022"],
+    "noEmit": true
+  
   },
   "include": ["src"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+
 }
