@@ -14,10 +14,10 @@ router.post(
   AdminController.tambahAdmin
 );
 router.put(
-  "/user-ubah-status-akun/:id",
+  "/update-admin/:id",
   protectRoute,
   adminOnly,
-  AdminController.updateStatus
+  AdminController.updateAdmin
 );
 router.delete(
   "/user-hapus/:id",

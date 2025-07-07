@@ -6,7 +6,7 @@ import { adminOnly } from "../middlewares/AdminOnly";
 const router = express.Router();
 
 // ✅ Absensi scan QR user (cek kartu aktif & simpan absensi)
-router.post("/", protectRoute, AbsensiController.absen);
+router.post("/:id",  AbsensiController.absen);
 
 // ✅ Get all absensi untuk admin (pagination + search)
 router.get("/", protectRoute, adminOnly, AbsensiController.getAbsensi24Jam);

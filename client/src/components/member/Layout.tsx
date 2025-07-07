@@ -1,25 +1,80 @@
-import React, { useEffect, useState } from "react";
+import React, { ReactNode } from "react"; // FIX: Impor React dan ReactNode
 import { Link, NavLink } from "react-router-dom";
 import { Home, Package, Percent, User, DumbbellIcon } from "lucide-react";
-import axios from "axios";
-import { useAuth } from "@/context/AuthContext";
+import { useProfile } from "@/context/ProfileContext";
+import clsx from "clsx";
 
-// Avatar fallback component
-const AvatarFallback = () => (
-  <div className="w-8 h-8 rounded-full bg-spotify-light-border flex items-center justify-center">
-    <User size={18} />
+// ===================================
+// == KOMPONEN-KOMPONEN HELPER ==
+// ===================================
+
+// Komponen ini bisa dipindah ke file sendiri (e.g., src/components/AvatarFallback.tsx)
+const AvatarFallback = ({
+  className,
+  children,
+}: {
+  className?: string;
+  children?: ReactNode;
+}) => (
+  <div
+    className={clsx(
+      "w-full h-full rounded-full bg-spotify-light-border flex items-center justify-center",
+      className
+    )}
+  >
+    {children || <User size={"60%"} />}
   </div>
 );
 
-type LayoutProps = {
-  children: React.ReactNode;
+// REFACTOR: Komponen baru untuk membungkus semua logika tampilan avatar
+const ProfileAvatar = ({ size = "w-8 h-8" }) => {
+  const { profile } = useProfile();
+
+  // FIX: Logika yang aman untuk menampilkan avatar
+  if (profile?.foto) {
+    return (
+      <img
+        src={profile.foto}
+        alt="Profile"
+        className={clsx("object-cover rounded-full", size)}
+      />
+    );
+  }
+
+  if (profile?.username) {
+    return (
+      <div className={clsx("rounded-full", size)}>
+        <AvatarFallback className="bg-spotify-green/20 text-spotify-green text-lg font-bold">
+          {profile.username.charAt(0).toUpperCase()}
+        </AvatarFallback>
+      </div>
+    );
+  }
+  
+  // Default jika tidak ada profile sama sekali
+  return (
+    <div className={clsx("rounded-full", size)}>
+      <AvatarFallback />
+    </div>
+  );
 };
+
+// REFACTOR: Fungsi untuk mengurangi duplikasi className pada NavLink
+const navLinkClasses = ({ isActive }: { isActive: boolean }) =>
+  clsx("transition-colors", {
+    "text-white": isActive,
+    "text-spotify-dimmed hover:text-white": !isActive,
+  });
+
+// ===================================
+// ==       KOMPONEN UTAMA          ==
+// ===================================
 
 const mobileNavLinks = [
   { href: "/dashboard", label: "Home", icon: Home },
   { href: "/packages", label: "Paket", icon: Package },
   { href: "/payment/history", label: "Payments", icon: Percent },
-  { href: "/account", label: "Akun", icon: User },
+  { href: "/account", label: "Akun", icon: User }, // Ikon User tetap sebagai fallback
 ];
 
 const desktopNavLinks = [
@@ -28,69 +83,25 @@ const desktopNavLinks = [
   { href: "/payment/history", label: "Payments" },
 ];
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
-  const { user } = useAuth(); // pastikan AuthContext memiliki user dengan id
-  const userId = user?.id || null;
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await axios.get(`http://localhost:3000/user/profile/${userId}`, {
-          withCredentials: true,
-        });
-        setProfilePhoto(res.data.data.foto || null);
-        console.log(res.data.data.foto);
-      } catch (error) {
-        console.error("Failed to fetch profile photo:", error);
-        setProfilePhoto(null);
-      }
-    };
-
-    fetchProfile();
-  }, [userId]);
-
+const Layout = ({ children }: { children: ReactNode }) => {
   return (
     <div className="bg-spotify-dark min-h-screen text-white">
       {/* ======================= */}
       {/* == DESKTOP TOP BAR == */}
       {/* ======================= */}
       <header className="hidden md:flex justify-between items-center px-8 h-16 border-b border-spotify-light-border">
-        <Link to="/" className="text-xl font-bold text-gold flex gap-x-1">
+        <Link to="/" className="text-xl font-bold text-gold flex gap-x-1 items-center">
           <DumbbellIcon className="text-spotify-green" />
           <span>Platinum Gym</span>
         </Link>
         <nav className="flex items-center space-x-8 h-full">
           {desktopNavLinks.map((link) => (
-            <NavLink
-              key={link.href}
-              to={link.href}
-              className={({ isActive }) =>
-                `transition-colors ${
-                  isActive
-                    ? "text-white"
-                    : "text-spotify-dimmed hover:text-white"
-                }`
-              }
-            >
+            <NavLink key={link.href} to={link.href} className={navLinkClasses}>
               {link.label}
             </NavLink>
           ))}
-
-          {/* Foto Profil */}
-          <NavLink
-            to="/account"
-            className="rounded-full transition-colors p-0 border border-spotify-light-border overflow-hidden w-8 h-8 flex items-center justify-center"
-          >
-            {profilePhoto ? (
-              <img
-                src={profilePhoto}
-                alt="Profile"
-                className="object-cover w-full h-full"
-              />
-            ) : (
-              <AvatarFallback />
-            )}
+          <NavLink to="/account" className="block">
+            <ProfileAvatar />
           </NavLink>
         </nav>
       </header>
@@ -105,20 +116,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               key={link.href}
               to={link.href}
               end={link.href === "/"}
-              className={({ isActive }) =>
-                `flex flex-col items-center justify-center w-full h-full transition-colors ${
-                  isActive
-                    ? "text-white"
-                    : "text-spotify-dimmed hover:text-white"
-                }`
+              className={(props) =>
+                clsx(
+                  "flex flex-col items-center justify-center w-full h-full",
+                  navLinkClasses(props)
+                )
               }
             >
-              {link.href === "/account" && profilePhoto ? (
-                <img
-                  src={profilePhoto}
-                  alt="Profile"
-                  className="rounded-full w-6 h-6 object-cover"
-                />
+              {link.href === "/account" ? (
+                // KONSISTENSI: Gunakan ProfileAvatar juga di mobile
+                <ProfileAvatar size="w-6 h-6" />
               ) : (
                 <link.icon size={24} />
               )}
@@ -127,11 +134,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           ))}
         </nav>
       </footer>
-
+      
       {/* ======================= */}
-      {/* ==   KONTEN HALAMAN  == */}
+      {/* ==  KONTEN HALAMAN   == */}
       {/* ======================= */}
-      <main className="p-4 sm:p-6 pb-24 md:pb-6 md:pt-6">{children}</main>
+      <main className="p-4 sm:p-6 pb-24 md:pb-6">{children}</main>
     </div>
   );
 };

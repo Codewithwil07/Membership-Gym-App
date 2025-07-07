@@ -1,6 +1,10 @@
+// src/pages/AuthPage.tsx
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Dumbbell, Lock, User, Phone } from "lucide-react";
 
 export default function AuthPage() {
   const { user, loading, login, register } = useAuth();
@@ -36,58 +40,89 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-900">
-      <div className="w-full max-w-md bg-neutral-800 p-8 rounded-xl">
-        <h2 className="text-center text-2xl font-bold mb-4 text-white">
-          {isLogin ? "Login" : "Register"}
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {!isLogin && (
-            <>
-              <input
-                name="username"
-                placeholder="Username"
-                onChange={handleChange}
-                className="w-full p-2 rounded bg-neutral-700 text-white"
-              />
-              <input
-                name="no_hp"
-                placeholder="No HP"
-                onChange={handleChange}
-                className="w-full p-2 rounded bg-neutral-700 text-white"
-              />
-            </>
-          )}
-          <input
-            name="email"
-            placeholder="Email"
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-neutral-700 text-white"
-          />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-neutral-700 text-white"
-          />
-          <button
-            type="submit"
-            className="w-full p-2 rounded bg-green-500 text-black font-bold"
+    <div className="min-h-screen flex items-center justify-center bg-neutral-950 p-4">
+      <motion.div
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-md bg-neutral-900 rounded-xl shadow-2xl overflow-hidden"
+      >
+        <div className="p-6 flex flex-col items-center text-center">
+          <motion.div
+            initial={{ rotate: -15 }}
+            animate={{ rotate: 0 }}
+            transition={{ type: "spring", stiffness: 100 }}
+            className="bg-green-500 rounded-full p-3 mb-4"
           >
-            {isLogin ? "Login" : "Register"}
-          </button>
-        </form>
-        <p className="text-center mt-4 text-neutral-400">
-          {isLogin ? "Belum punya akun?" : "Sudah punya akun?"}{" "}
-          <button
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-green-400 underline"
-          >
-            {isLogin ? "Register" : "Login"}
-          </button>
-        </p>
-      </div>
+            <Dumbbell className="w-8 h-8 text-black" />
+          </motion.div>
+          <h2 className="text-2xl font-bold text-white mb-2">
+            {isLogin ? "Welcome Back" : "Create Account"}
+          </h2>
+          <p className="text-neutral-400 mb-4 text-sm">
+            {isLogin ? "Login to your membership account" : "Register to join our gym membership"}
+          </p>
+          <form onSubmit={handleSubmit} className="space-y-3 w-full">
+            {!isLogin && (
+              <>
+                <div className="relative">
+                  <User className="absolute left-3 top-2.5 w-5 h-5 text-neutral-400" />
+                  <input
+                    name="username"
+                    placeholder="Username"
+                    onChange={handleChange}
+                    className="pl-10 p-2 w-full rounded bg-neutral-800 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-2.5 w-5 h-5 text-neutral-400" />
+                  <input
+                    name="no_hp"
+                    placeholder="Phone Number"
+                    onChange={handleChange}
+                    className="pl-10 p-2 w-full rounded bg-neutral-800 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+              </>
+            )}
+            <div className="relative">
+              <User className="absolute left-3 top-2.5 w-5 h-5 text-neutral-400" />
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                onChange={handleChange}
+                className="pl-10 p-2 w-full rounded bg-neutral-800 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+            </div>
+            <div className="relative">
+              <Lock className="absolute left-3 top-2.5 w-5 h-5 text-neutral-400" />
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                onChange={handleChange}
+                className="pl-10 p-2 w-full rounded bg-neutral-800 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-green-500 hover:bg-green-600 transition text-black font-semibold py-2 rounded mt-2"
+            >
+              {isLogin ? "Login" : "Register"}
+            </button>
+          </form>
+          <p className="text-neutral-400 mt-4 text-sm">
+            {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+            <button
+              onClick={() => setIsLogin(!isLogin)}
+              className="text-green-400 hover:underline transition"
+            >
+              {isLogin ? "Register" : "Login"}
+            </button>
+          </p>
+        </div>
+      </motion.div>
     </div>
   );
 }

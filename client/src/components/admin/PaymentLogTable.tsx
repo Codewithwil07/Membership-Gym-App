@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
+import api from "@/api/axios";
 
 interface Payment {
   id: number;
@@ -34,47 +35,44 @@ export default function PaymentLogTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const rowsPerPage = 5; // sesuai limit backend contoh kamu
+  const rowsPerPage = 5; // sesuai limit backend
 
   const fetchPayments = async () => {
     setLoading(true);
     setError("");
 
     try {
-      const params = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: rowsPerPage.toString(),
-        search: searchTerm,
-        sort: filterDate,
+      const res = await api.get("/api/transaksi/transaksi-data", {
+        params: {
+          page: currentPage,
+          limit: rowsPerPage,
+          search: searchTerm,
+          sort: filterDate,
+        },
+        withCredentials: true,
       });
 
-      const res = await fetch(
-        `http://localhost:3000/api/transaksi/transaksi-data?${params}`,
-        { credentials: "include" }
-      );
-      const data = await res.json();
+      const data = res.data.data;
 
-      if (res.ok) {
-        const apiPayments = data.data.data.map((item: any) => ({
-          id: item.id,
-          user: item.username,
-          packageName: item.nama_paket,
-          amount: parseFloat(item.jumlah_bayar),
-          transactionDate: item.created_at,
-          paymentMethod: item.metode_pembayaran,
-          status: item.status,
-        }));
+      const apiPayments = data.data.map((item: any) => ({
+        id: item.id,
+        user: item.username,
+        packageName: item.nama_paket,
+        amount: parseFloat(item.jumlah_bayar),
+        transactionDate: item.created_at,
+        paymentMethod: item.metode_pembayaran,
+        status: item.status,
+      }));
 
-        setPayments(apiPayments);
+      setPayments(apiPayments);
 
-        const total = data.data.total ?? rowsPerPage;
-        setTotalPages(Math.ceil(total / rowsPerPage));
-      } else {
-        setError(data.message || "Failed to fetch payments.");
-      }
-    } catch (err) {
+      const total = data.total ?? rowsPerPage;
+      setTotalPages(Math.ceil(total / rowsPerPage));
+    } catch (err: any) {
       console.error(err);
-      setError("Error fetching payments.");
+      setError(
+        err.response?.data?.message || "Error fetching payments."
+      );
     } finally {
       setLoading(false);
     }
@@ -182,7 +180,6 @@ export default function PaymentLogTable() {
               </tbody>
             </table>
 
-            {/* Pagination */}
             <div className="flex justify-between items-center mt-4">
               <span className="text-sm text-muted-foreground">
                 Page {currentPage} of {totalPages}

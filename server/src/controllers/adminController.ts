@@ -14,7 +14,7 @@ export class AdminController {
         password,
         no_hp,
         role = "admin",
-        status_akun,
+        status_akun = "active",
       } = req.body;
 
       if (!username || !email || !password || !no_hp || !role || !status_akun) {
@@ -30,30 +30,6 @@ export class AdminController {
       res.status(error.status || 500).json({
         success: false,
         message: error.message || "Terjadi kesalahan",
-      });
-    }
-  }
-
-  static async updateStatus(req: Request, res: Response) {
-    try {
-      const { status_akun } = req.body;
-      const { id } = req.params;
-
-      if (!id) {
-        throw { message: "Id tidak valid", status: 400 };
-      }
-
-      if (!status_akun) {
-        throw { message: "field status_akun kosong", status: 400 };
-      }
-
-      const admin = await service.updateStatus(parseInt(id), status_akun);
-
-      successResponse(res, 201, "Status akun berhasil diubah", admin);
-    } catch (error: any) {
-      res.status(error.status || 500).json({
-        success: false,
-        message: error.message || "Terjadi kesalahan di server",
       });
     }
   }
@@ -86,6 +62,37 @@ export class AdminController {
       const data = await service.getAllUser({ page, limit, search });
       successResponse(res, 200, "Akses data valid", data);
     } catch (error: any) {
+      res.status(error.status || 500).json({
+        success: false,
+        message: error.message || "Terjadi kesalahan di server",
+      });
+    }
+  }
+
+  static async updateAdmin(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const { username, password, email, no_hp } = req.body;
+
+      if (!username || !email || !password || !no_hp) {
+        throw {
+          message: "username, email, dan no_hp wajib diisi",
+          status: 400,
+        };
+      }
+
+      const updatedUser = await service.updateAdmin(parseInt(id), {
+        username,
+        email,
+        no_hp,
+        password,
+        status_akun: "active",
+        role: "admin",
+      });
+      
+      successResponse(res, 200, "Data admin berhasil diupdate", updatedUser);
+    } catch (error: any) {
+      console.error(error);
       res.status(error.status || 500).json({
         success: false,
         message: error.message || "Terjadi kesalahan di server",

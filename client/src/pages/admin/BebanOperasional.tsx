@@ -1,7 +1,6 @@
 // src/pages/BebanOperasional.tsx
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,6 +30,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { format } from "date-fns";
+import api from "@/api/axios";
 
 interface BebanOperasional {
   id: number;
@@ -57,7 +57,7 @@ const BebanOperasionalPage = () => {
   const [editId, setEditId] = useState<number | null>(null);
 
   const fetchData = async () => {
-    const res = await axios.get("http://localhost:3000/api/beban-operasional", {
+    const res = await api.get("/api/beban-operasional", {
       params: { limit, page, search },
       withCredentials: true,
     });
@@ -72,13 +72,13 @@ const BebanOperasionalPage = () => {
 
   const handleSubmit = async () => {
     if (editId) {
-      await axios.put(
-        `http://localhost:3000/api/beban-operasional/${editId}`,
+      await api.put(
+        `/api/beban-operasional/${editId}`,
         form,
         { withCredentials: true }
       );
     } else {
-      await axios.post("http://localhost:3000/api/beban-operasional", form, {
+      await api.post("/api/beban-operasional", form, {
         withCredentials: true,
       });
     }
@@ -94,7 +94,7 @@ const BebanOperasionalPage = () => {
   };
 
   const handleDelete = async (id: number) => {
-    await axios.delete(`http://localhost:3000/api/beban-operasional/${id}`, {
+    await api.delete(`/api/beban-operasional/${id}`, {
       withCredentials: true,
     });
     fetchData();
@@ -147,6 +147,12 @@ const BebanOperasionalPage = () => {
                   value={form.jumlah}
                   onChange={(e) => setForm({ ...form, jumlah: e.target.value })}
                 />
+                <p className="text-sm ml-2 text-muted-foreground relative right-1">
+                  rupiah:
+                  <span className="ml-2 text-muted-foreground">
+                    Rp {Number(form.jumlah).toLocaleString("id-ID")}
+                  </span>
+                </p>
                 <Label>Keterangan (Opsional)</Label>
                 <Input
                   type="text"

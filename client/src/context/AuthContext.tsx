@@ -14,7 +14,12 @@ interface AuthContextType {
   loading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (data: { username: string; email: string; password: string; no_hp: string }) => Promise<void>;
+  register: (data: {
+    username: string;
+    email: string;
+    password: string;
+    no_hp: string;
+  }) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -28,7 +33,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const fetchUser = async () => {
     try {
       const res = await authService.getMe();
-      setUser(res.data.data);
+      if (res?.data?.data) {
+        setUser(res.data.data);
+      } else {
+        setUser(null);
+      }
     } catch {
       setUser(null);
     } finally {
@@ -45,11 +54,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       await authService.login({ email, password });
       await fetchUser();
-      toast({ title: "Login berhasil", description: "Selamat datang kembali!" });
+      toast({
+        title: "Login berhasil",
+        description: "Selamat datang kembali!",
+      });
     } catch (error: any) {
       toast({
         title: "Login gagal",
-        description: error?.response?.data?.message || "Email atau password salah.",
+        description:
+          error?.response?.data?.message || "Email atau password salah.",
         variant: "destructive",
       });
       throw error;
@@ -58,7 +71,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const register = async (data: { username: string; email: string; password: string; no_hp: string }) => {
+  const register = async (data: {
+    username: string;
+    email: string;
+    password: string;
+    no_hp: string;
+  }) => {
     setLoading(true);
     try {
       await authService.register(data);
@@ -66,7 +84,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error: any) {
       toast({
         title: "Registrasi gagal",
-        description: error?.response?.data?.message || "Terjadi kesalahan saat registrasi.",
+        description:
+          error?.response?.data?.message ||
+          "Terjadi kesalahan saat registrasi.",
         variant: "destructive",
       });
       throw error;
@@ -80,11 +100,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       await authService.logout();
       setUser(null);
-      toast({ title: "Logout berhasil", description: "Anda telah keluar dari akun." });
+      toast({
+        title: "Logout berhasil",
+        description: "Anda telah keluar dari akun.",
+      });
     } catch (error: any) {
       toast({
         title: "Logout gagal",
-        description: error?.response?.data?.message || "Terjadi kesalahan saat logout.",
+        description:
+          error?.response?.data?.message || "Terjadi kesalahan saat logout.",
         variant: "destructive",
       });
       throw error;

@@ -11,7 +11,14 @@ const absensiService = new AbsensiService(absensiRepo, kartuRepo);
 export class AbsensiController {
   static async absen(req: Request, res: Response) {
     try {
-      const user_id = req.user.id;
+      const user_id = parseInt(req.params.id);
+
+      if (isNaN(user_id)) {
+        return res.status(400).json({
+          success: false,
+          message: "ID tidak valid.",
+        });
+      }
       const absen = await absensiService.absen(user_id);
       return successResponse(res, 201, "Absensi berhasil", absen);
     } catch (error: any) {
@@ -29,15 +36,20 @@ export class AbsensiController {
 
       const result = await absensiService.getAllAbsensi24Jam(page, limit);
 
-      return successResponse(res, 200, "Data absensi 24 jam terakhir berhasil diambil", {
-        data: result.data,
-        pagination: {
-          total: result.total,
-          page,
-          limit,
-          totalPage: Math.ceil(result.total / limit),
-        },
-      });
+      return successResponse(
+        res,
+        200,
+        "Data absensi 24 jam terakhir berhasil diambil",
+        {
+          data: result.data,
+          pagination: {
+            total: result.total,
+            page,
+            limit,
+            totalPage: Math.ceil(result.total / limit),
+          },
+        }
+      );
     } catch (error: any) {
       res.status(error.status || 500).json({
         success: false,
@@ -50,7 +62,12 @@ export class AbsensiController {
     try {
       const user_id = req.user.id;
       const absensi = await absensiService.getByUserId(user_id);
-      return successResponse(res, 200, "Berhasil mengambil data absensi", absensi);
+      return successResponse(
+        res,
+        200,
+        "Berhasil mengambil data absensi",
+        absensi
+      );
     } catch (error: any) {
       res.status(error.status || 500).json({
         success: false,

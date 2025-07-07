@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import api from "@/api/axios";
 
 interface PaketFormData {
   nama_paket: string;
@@ -30,20 +31,19 @@ export default function PaketFormPage() {
   const [loading, setLoading] = useState(!!id);
   const [submitting, setSubmitting] = useState(false);
 
-  // Fetch paket data if editing
   useEffect(() => {
     if (id) {
       const fetchPaket = async () => {
         try {
-          const res = await fetch(`http://localhost:3000/admin/paket/${id}`, {
-            credentials: "include",
+          const res = await api.get(`/admin/paket/${id}`, {
+            withCredentials: true,
           });
-          const data = await res.json();
+          const data = res.data.data;
           setForm({
-            nama_paket: data.data.nama_paket,
-            durasi_hari: data.data.durasi_hari,
-            harga: data.data.harga,
-            deskripsi: data.data.deskripsi,
+            nama_paket: data.nama_paket,
+            durasi_hari: data.durasi_hari,
+            harga: data.harga,
+            deskripsi: data.deskripsi,
           });
         } catch (err) {
           console.error(err);
@@ -72,39 +72,32 @@ export default function PaketFormPage() {
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      const res = await fetch(
-        id
-          ? `http://localhost:3000/admin/paket-update/${id}`
-          : `http://localhost:3000/admin/paket-tambah`,
-        {
-          method: id ? "PUT" : "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(form),
-        }
-      );
-      const data = await res.json();
+      const url = id
+        ? `/admin/paket-update/${id}`
+        : `/admin/paket-tambah`;
 
-      if (res.ok) {
-        toast({
-          title: id ? "Paket berhasil diperbarui" : "Paket berhasil dibuat",
-          description: `Paket "${form.nama_paket}" telah ${
-            id ? "diperbarui" : "dibuat"
-          } dengan sukses.`,
-        });
-        navigate("/admin/packages");
-      } else {
-        toast({
-          title: "Gagal menyimpan paket",
-          description: data.message || "Terjadi kesalahan pada server.",
-          variant: "destructive",
-        });
-      }
-    } catch (err) {
+      const method = id ? "put" : "post";
+
+      await api({
+        method,
+        url,
+        data: form,
+        withCredentials: true,
+      });
+
+      toast({
+        title: id ? "Paket berhasil diperbarui" : "Paket berhasil dibuat",
+        description: `Paket "${form.nama_paket}" telah ${
+          id ? "diperbarui" : "dibuat"
+        } dengan sukses.`,
+      });
+      navigate("/admin/packages");
+    } catch (err: any) {
       console.error(err);
       toast({
-        title: "Terjadi kesalahan",
-        description: "Gagal menyimpan paket. Silakan coba lagi.",
+        title: "Gagal menyimpan paket",
+        description:
+          err?.response?.data?.message || "Terjadi kesalahan pada server.",
         variant: "destructive",
       });
     } finally {
@@ -136,7 +129,7 @@ export default function PaketFormPage() {
               placeholder="Durasi (hari)"
               type="number"
               name="durasi_hari"
-              value={form.durasi_hari === 0 ? "" : Number(form.durasi_hari)}
+              value={form.durasi_hari === 0 ? "" : form.durasi_hari}
               onChange={handleChange}
             />
             <Input
@@ -144,7 +137,7 @@ export default function PaketFormPage() {
               placeholder="Harga"
               type="number"
               name="harga"
-              value={form.harga === 0 ? "" : Number(form.harga)}
+              value={form.harga === 0 ? "" : form.harga}
               onChange={handleChange}
             />
             <p className="text-sm ml-2">

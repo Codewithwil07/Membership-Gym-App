@@ -43,7 +43,7 @@ export default function ReportTable({
             <TableHead className="text-spotify-text-light-grey">Paket</TableHead>
             <TableHead className="text-spotify-text-light-grey">Tgl. Transaksi</TableHead>
             <TableHead className="text-spotify-text-light-grey">Metode Bayar</TableHead>
-            <TableHead className="text-spotify-text-light-grey text-right">Jumlah</TableHead> {/* Rata kanan untuk jumlah */}
+            <TableHead className="text-spotify-text-light-grey text-right">Jumlah</TableHead> 
             <TableHead className="text-spotify-text-light-grey text-center">Status</TableHead>
           </TableRow>
         </TableHeader>
@@ -56,13 +56,13 @@ export default function ReportTable({
             </TableRow>
           ) : (
             data.map((item) => (
-              <TableRow key={item.id} className="border-spotify-border hover:bg-spotify-light-card-bg">
+              <TableRow key={item.transaction_date} className="border-spotify-border hover:bg-spotify-light-card-bg">
                 <TableCell className="font-medium text-spotify-text-white">{item.username}</TableCell>
                 <TableCell className="text-spotify-text-white">{item.nama_paket}</TableCell>
                 {/* Pastikan transaction_date adalah objek Date */}
                 <TableCell className="text-spotify-text-light-grey">{format(item.transaction_date, 'dd MMMMyyyy', { locale: idLocale })}</TableCell>
                 <TableCell className="text-spotify-text-light-grey">{item.metode_pembayaran}</TableCell>
-                <TableCell className="text-spotify-text-white text-right">{formatRupiah(item.amount)}</TableCell> {/* Rata kanan */}
+                <TableCell className="text-spotify-text-white text-right">{formatRupiah(item.amount)}</TableCell> 
                 <TableCell className="text-center">
                   <span
                     className={`px-2 py-1 rounded text-xs font-medium ${
@@ -81,7 +81,6 @@ export default function ReportTable({
           )}
         </TableBody>
       </Table>
-      {/* Total Verified Revenue DIHAPUS dari sini, karena sudah ada di ReportPage */}
     </div>
   );
 }

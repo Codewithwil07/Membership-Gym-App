@@ -11,7 +11,7 @@ export interface ManageUser {
   password: string;
   no_hp: string;
   role: "admin" | "member";
-  status_akun: "active" | "inactive" | 'suspend';
+  status_akun: "active" | "nonactive";
 }
 
 export interface LoginDTO {
@@ -22,18 +22,16 @@ export interface LoginDTO {
 export interface UserResponse {
   id: number;
   username: string;
-  password: string
   email: string;
   role: "admin" | "member";
   is_superadmin: boolean;
   status_akun: "active" | "inactive";
 }
 
-
 export interface getAllUsers {
-  page: number,
-  limit: number, 
-  search?: string
+  page: number;
+  limit: number;
+  search?: string;
 }
 
 export interface UpdateProfileDTO {

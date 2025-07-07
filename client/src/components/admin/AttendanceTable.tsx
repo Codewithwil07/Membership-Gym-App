@@ -1,21 +1,26 @@
+// src/components/admin/AttendanceTable.tsx
+
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
+import api from "@/api/axios";
 
 interface AbsensiData {
   id: number;
   username: string;
   tanggal: string;
-  status: "valid" | "invalid";
 }
 
-export default function AbsensiTable() {
+export default function AttendanceTable({
+  reloadTrigger = 0,
+}: {
+  reloadTrigger?: number;
+}) {
   const [data, setData] = useState<AbsensiData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
@@ -23,27 +28,22 @@ export default function AbsensiTable() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(
-        `http://localhost:3000/api/absensi?limit=${rowsPerPage}&page=${currentPage}`,
-        { credentials: "include" }
+      const res = await api.get(
+        `/api/absensi?limit=${rowsPerPage}&page=${currentPage}`,
+        { withCredentials: true }
       );
-      const json = await res.json();
 
-      if (res.ok) {
-        // Pastikan backend mengembalikan { data: [ ... ] }
-        const apiData = json.data.data.map((item: any) => ({
-          id: item.id,
-          username: item.username,
-          tanggal: item.created_at.slice(0, 10),
-          status: item.status_absensi, // pastikan field ini sesuai
-        }));
-        setData(apiData);
-      } else {
-        setError(json.message || "Failed to fetch data.");
-      }
-    } catch (err) {
+      const apiData = res.data.data.data.map((item: any) => ({
+        id: item.id,
+        username: item.username,
+        tanggal: item.created_at.slice(0, 10),
+      }));
+      setData(apiData);
+    } catch (err: any) {
       console.error(err);
-      setError("Error fetching data.");
+      setError(
+        err?.response?.data?.message || "Error fetching attendance data."
+      );
     } finally {
       setLoading(false);
     }
@@ -51,7 +51,8 @@ export default function AbsensiTable() {
 
   useEffect(() => {
     fetchData();
-  }, [currentPage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, reloadTrigger]);
 
   const handlePrev = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
   const handleNext = () => setCurrentPage((prev) => prev + 1);
@@ -59,7 +60,7 @@ export default function AbsensiTable() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Attendance Records (API)</CardTitle>
+        <CardTitle>Attendance Records</CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (
@@ -82,19 +83,13 @@ export default function AbsensiTable() {
               <tbody>
                 {data.length > 0 ? (
                   data.map((a) => {
-                    const formattedDate = format(a.tanggal, 'dd-MM-yyyy')
+                    const formattedDate = format(a.tanggal, "dd-MM-yyyy");
                     return (
                       <tr key={a.id} className="border-b hover:bg-muted/50">
                         <td className="py-2">{a.username}</td>
                         <td className="py-2">{formattedDate}</td>
-                        <td
-                          className={`py-2 font-semibold ${
-                            a.status === "valid"
-                              ? "text-green-600"
-                              : "text-red-500"
-                          }`}
-                        >
-                          {a.status}
+                        <td className="py-2 font-semibold text-green-600">
+                          valid
                         </td>
                       </tr>
                     );

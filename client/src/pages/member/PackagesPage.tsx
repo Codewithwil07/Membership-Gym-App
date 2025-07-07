@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import { CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
-import axios from "axios";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import api from "@/api/axios";
 
 interface PackageData {
   id: number;
@@ -32,7 +32,7 @@ const PackagesPage: React.FC = () => {
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/admin/paket", {
+        const res = await api.get("/admin/paket", {
           withCredentials: true,
         });
         setPackages(res.data.data);
@@ -59,7 +59,7 @@ const PackagesPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-10 md:p-0 xl:p-0">
       <div>
         <h1 className="text-3xl font-bold text-white">
           Pilih <span className="text-spotify-green">Membership</span>

@@ -23,35 +23,15 @@ import {
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import { useAuth } from "@/context/AuthContext";
-import axios from "axios";
+import { useProfile } from "@/context/ProfileContext";
 
 const AccountPage: React.FC = () => {
   const navigate = useNavigate();
   const { logout, user } = useAuth(); // pastikan AuthContext memiliki user dengan id
 
-  const [profile, setProfile] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { profile, isLoading, error } = useProfile();
 
   const userId = user?.id; // sementara pakai 38 untuk testing
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:3000/user/profile/${userId}`,
-          { withCredentials: true }
-        );
-        setProfile(response.data.data);
-        setIsLoading(false);
-      } catch (err) {
-        console.error(err);
-        setError("Gagal mengambil data profil.");
-        setIsLoading(false);
-      }
-    };
-    fetchProfile();
-  }, [userId]);
 
   const handleEditProfile = () => {
     navigate(`/account/edit-profile/${userId}`);

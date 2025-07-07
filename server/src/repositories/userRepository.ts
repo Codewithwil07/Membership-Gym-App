@@ -1,5 +1,10 @@
 import db from "../config/db";
-import { RegisterDTO, ManageUser, UserResponse, UpdateProfileDTO } from "../models/user";
+import {
+  RegisterDTO,
+  ManageUser,
+  UserResponse,
+  UpdateProfileDTO,
+} from "../models/user";
 
 export class UserRepository {
   async create(user: RegisterDTO | ManageUser): Promise<UserResponse> {
@@ -24,7 +29,7 @@ export class UserRepository {
     return rows[0];
   }
 
-  async findByEmail(email: string): Promise<UserResponse | null> {
+  async findByEmail(email: string) {
     const [rows]: any = await db.query(
       "SELECT id, username, email, password, no_hp, role, status_akun, is_superadmin FROM users WHERE email = ?",
       [email]
@@ -100,18 +105,34 @@ export class UserRepository {
       ]);
     }
   }
+  async updateAdmin(
+    id: number,
+    data: {
+      username: string;
+      email: string;
+      password: string;
+      no_hp: string;
+      status_akun: "active" | "nonactive";
+    }
+  ): Promise<UserResponse> {
+    await db.query(
+      `UPDATE users SET username = ?, email = ?, password = ?, no_hp = ?, status_akun = ? WHERE id = ? AND role = 'admin'`,
+      [
+        data.username,
+        data.email,
+        data.password,
+        data.no_hp,
+        data.status_akun,
+        id,
+      ]
+    );
 
-  async delete(id: number): Promise<{ id: number }> {
-    const [deleteResult]: any = await db.query(
-      "DELETE FROM users WHERE id = ?",
+    const [rows]: any = await db.query(
+      `SELECT id, username, email, no_hp, status_akun, role FROM users WHERE id = ? AND role = 'admin'`,
       [id]
     );
 
-    if (deleteResult.affectedRows === 0) {
-      throw { message: "User tidak ditemukan", status: 404 };
-    }
-
-    return { id };
+    return rows[0];
   }
 
   async findById(id: number): Promise<UserResponse | null> {
@@ -120,6 +141,24 @@ export class UserRepository {
       [id]
     );
     return rows[0] || null;
+  }
+
+  async delete(id: number) {
+    // Cek apakah user admin dengan id tersebut ada
+    const [existing]: any = await db.query(
+      "SELECT id FROM users WHERE id = ? AND role = 'admin'",
+      [id]
+    );
+
+    if (existing.length === 0) {
+      throw { message: "Admin tidak ditemukan", status: 404 };
+    }
+
+    // Hapus user admin
+    await db.query("DELETE FROM users WHERE id = ? AND role = 'admin'", [id]);
+
+    // Return id untuk konfirmasi frontend
+    return id;
   }
 
   async updateProfile(id: number, data: UpdateProfileDTO) {

@@ -30,21 +30,26 @@ import PaymentHistoryPage from "@/pages/member/PaymentHistoryPage";
 import { Toaster } from "@/components/ui/toaster";
 import CheckoutPage from "@/pages/member/CheckoutPage";
 import PaymentResultPage from "@/pages/member/PaymentResultPage";
+import { SuperAdminAdminPage } from "@/pages/admin/SuperAdminPage";
 
 export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
         {/* Public */}
-        <Route index element={<GymLandingPage />} />
         <Route path="/auth" element={<AuthPage />} />
 
+        <Route index path="/" element={<GymLandingPage />} />
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
           {/* Admin */}
           <Route element={<AdminLayout />}>
             <Route path="/admin/dashboard" element={<DashboardPage />} />
             <Route path="/admin/members" element={<MemberPage />} />
+            <Route
+              path="/admin/manage-admin"
+              element={<SuperAdminAdminPage />}
+            />
             <Route
               path="/admin/members/edit/:id"
               element={<MemberFormPage />}
@@ -67,7 +72,7 @@ export default function AppRoutes() {
             <Route path="/packages" element={<PackagesPage />} />
             <Route path="/packages/checkout/:id" element={<CheckoutPage />} />
             <Route path="/payment/history" element={<PaymentHistoryPage />} />
-            <Route path="/account" element={<AccountPage />} />
+            <Route path="/account" element={<AccountPage />} key={Date.now()}/>
             <Route path="/account/edit-profile/:id" element={<EditProfile />} />
             <Route path="/payment-result" element={<PaymentResultPage />} />
           </Route>

@@ -22,30 +22,6 @@ export class AdminServices {
     return await this.repo.create(user);
   }
 
-  async updateStatus(
-    id: number,
-    status_akun: "active" | "inactive"
-  ): Promise<{ id: number; status_akun: string }> {
-    const existingUser = await this.repo.findById(id);
-    if (!existingUser) throw { message: "User tidak ada", status: 404 };
-
-    const user = await this.repo.updateStatus(id, status_akun);
-
-    return {
-      id: user.id,
-      status_akun: user.status_akun,
-    };
-  }
-  async delete(id: number): Promise<{ id: number }> {
-    const user = await this.repo.findById(id);
-    if (!user) throw { message: "Id user tidak ada", status: 404 };
-
-    await this.repo.delete(user.id);
-
-    return {
-      id: user.id,
-    };
-  }
   async getAllUser(data: getAllUsers) {
     const page = data.page || 1;
     const limit = data.limit || 10;
@@ -66,5 +42,54 @@ export class AdminServices {
         totalPage,
       },
     };
+  }
+
+  async delete(id: number) {
+    const user = await this.repo.findById(id);
+    if (!user) throw { message: "User tidak ditemukan", status: 404 };
+
+    if (user.role !== "admin") {
+      throw { message: "User bukan admin", status: 400 };
+    }
+
+    const userId = await this.repo.delete(id);
+
+    return userId;
+  }
+
+  async updateAdmin(id: number, data: ManageUser): Promise<UserResponse> {
+    const user = await this.repo.findById(id);
+    if (!user) throw { message: "User tidak ditemukan", status: 404 };
+
+    if (user.role !== "admin") {
+      throw { message: "User bukan admin", status: 400 };
+    }
+
+    // Validasi status_akun
+    if (data.status_akun !== "active" && data.status_akun !== "nonactive") {
+      throw { message: "Status akun tidak valid", status: 400 };
+    }
+
+    // Cek username unik jika diubah
+    if (data.username !== user.username) {
+      const existingUsername = await this.repo.findByUsername(data.username);
+      if (existingUsername) {
+        throw { message: "Username sudah digunakan", status: 409 };
+      }
+    }
+
+    // Cek email unik jika diubah
+    if (data.email !== user.email) {
+      const existingEmail = await this.repo.findByEmail(data.email);
+      if (existingEmail) {
+        throw { message: "Email sudah digunakan", status: 409 };
+      }
+    }
+
+    data.password = await bcrypt.hash(data.password, 10);
+    // Update melalui repo
+    const updatedUser = await this.repo.updateAdmin(id, data);
+
+    return updatedUser;
   }
 }

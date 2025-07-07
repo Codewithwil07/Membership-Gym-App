@@ -3,6 +3,10 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mengubah warna icon toggle show/hide password secara global */
+
+
+
 ustom-scrollbar-hide::-webkit-scrollbar {
   display: none; /* Untuk Chrome, Safari, Opera */
   width: 0;

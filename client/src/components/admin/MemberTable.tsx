@@ -1,10 +1,10 @@
 // src/pages/admin/MemberTable.tsx
 
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import api from "@/api/axios";
 
 interface Member {
   id: number;
@@ -37,7 +37,7 @@ export default function MemberTable() {
   const fetchMembers = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:3000/admin/user-data", {
+      const res = await api.get("/admin/user-data", {
         params: {
           page: currentPage,
           limit: itemsPerPage,

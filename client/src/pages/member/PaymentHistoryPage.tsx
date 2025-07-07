@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+
 import { format } from "date-fns";
 import { Loader2, BadgeCheck, Receipt } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import api from "@/api/axios";
 
 interface PaymentHistoryItem {
   id: number;
@@ -23,8 +24,8 @@ const PaymentHistoryPage: React.FC = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:3000/api/payment/history",
+        const res = await api.get(
+          "/api/payment/history",
           { withCredentials: true }
         );
         setHistory(res.data.data);
@@ -46,12 +47,7 @@ const PaymentHistoryPage: React.FC = () => {
       </div>
     );
 
-  if (error)
-    return (
-      <p className="text-center text-red-500 mt-10">
-        {error}
-      </p>
-    );
+  if (error) return <p className="text-center text-red-500 mt-10">{error}</p>;
 
   return (
     <div className="space-y-8">
@@ -125,7 +121,8 @@ const PaymentHistoryPage: React.FC = () => {
             Belum ada riwayat pembayaran
           </p>
           <p className="text-spotify-dimmed text-sm text-center max-w-xs">
-            Setelah Anda melakukan pembayaran paket membership, riwayat pembayaran akan muncul di sini.
+            Setelah Anda melakukan pembayaran paket membership, riwayat
+            pembayaran akan muncul di sini.
           </p>
         </div>
       )}

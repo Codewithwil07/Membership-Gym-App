@@ -41,7 +41,7 @@ export default function ReportFilter({ onFilterChange }: ReportFilterProps) {
           <SelectTrigger id="month-select" className="w-full bg-spotify-light-card-bg border-spotify-border text-spotify-text-white focus-visible:ring-spotify-green h-10 text-base">
             <SelectValue placeholder="Pilih Bulan" />
           </SelectTrigger>
-          <SelectContent className="bg-spotify-card-bg border-spotify-border text-spotify-text-white"> {/* Sesuaikan background & border SelectContent */}
+          <SelectContent className="bg-spotify-card-bg border-spotify-border text-spotify-text-white"> 
             {months.map(m => (
               <SelectItem key={m} value={String(m)} className="hover:bg-spotify-light-card-bg focus:bg-spotify-light-card-bg"> {/* Styling hover/focus */}
                 {format(new Date(currentYear, m - 1, 1), 'MMMM', { locale: idLocale })} 

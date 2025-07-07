@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import api from "@/api/axios";
 
 interface PackageData {
   id: number;
@@ -27,7 +28,7 @@ const CheckoutPage: React.FC = () => {
   useEffect(() => {
     const fetchPackage = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/admin/paket/${id}`, {
+        const res = await api.get(`/admin/paket/${id}`, {
           withCredentials: true,
         });
         setPkg(res.data.data);
@@ -46,7 +47,7 @@ const CheckoutPage: React.FC = () => {
     setPayLoading(true);
     try {
       const res = await axios.post(
-        "http://localhost:3000/api/payment/create",
+        "/api/payment/create",
         {
           paket_id: pkg.id,
           payment_type: "dana", // atau dynamic

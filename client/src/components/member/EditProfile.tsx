@@ -15,8 +15,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ChevronLeft, Camera } from "lucide-react";
-import axios from "axios";
 import { toast } from "@/hooks/use-toast";
+import { useProfile } from "@/context/ProfileContext";
+import api from "@/api/axios";
 
 interface ProfileData {
   username: string;
@@ -41,12 +42,14 @@ const EditProfilePage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const { fetchProfile } = useProfile(); //
+
   // Fetch data user
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:3000/user/profile/${userId}`,
+        const res = await api.get(
+          `/user/profile/${userId}`,
           { withCredentials: true }
         );
         const data = res.data.data;
@@ -82,14 +85,16 @@ const EditProfilePage: React.FC = () => {
     formDataUpload.append("photo", file);
 
     try {
-      const res = await axios.put(
-        `http://localhost:3000/user/profile/${userId}/photo`,
+      const res = await api.put(
+        `/user/profile/${userId}/photo`,
         formDataUpload,
         {
-          withCredentials: true,
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
+
+      await fetchProfile()
+
       const uploadedUrl = res.data.url;
       setAvatarPreviewUrl(uploadedUrl);
 
@@ -131,9 +136,11 @@ const EditProfilePage: React.FC = () => {
         no_hp: formData.phoneNumber,
       };
 
-      await axios.put(`http://localhost:3000/user/profile/${userId}`, payload, {
+      await api.put(`/user/profile/${userId}`, payload, {
         withCredentials: true,
       });
+
+      await fetchProfile();
 
       toast({
         title: "Profil berhasil diperbarui",
@@ -182,7 +189,9 @@ const EditProfilePage: React.FC = () => {
         {/* Form */}
         <Card className="bg-spotify-card-bg border border-spotify-border text-spotify-text-white rounded-xl shadow-lg p-5 md:p-6">
           <CardHeader className="pb-4">
-            <CardTitle className="text-xl font-bold">Informasi Pribadi</CardTitle>
+            <CardTitle className="text-xl font-bold">
+              Informasi Pribadi
+            </CardTitle>
             <CardDescription className="text-spotify-text-light-grey text-sm">
               Perbarui detail akun Anda di sini.
             </CardDescription>
@@ -229,7 +238,9 @@ const EditProfilePage: React.FC = () => {
 
               {/* Username */}
               <div className="space-y-2">
-                <Label htmlFor="username" className="text-spotify-text-white">Username</Label>
+                <Label htmlFor="username" className="text-spotify-text-white">
+                  Username
+                </Label>
                 <Input
                   id="username"
                   type="text"
@@ -242,7 +253,12 @@ const EditProfilePage: React.FC = () => {
 
               {/* Phone */}
               <div className="space-y-2">
-                <Label htmlFor="phoneNumber" className="text-spotify-text-white">Nomor Telepon</Label>
+                <Label
+                  htmlFor="phoneNumber"
+                  className="text-spotify-text-white"
+                >
+                  Nomor Telepon
+                </Label>
                 <Input
                   id="phoneNumber"
                   type="tel"

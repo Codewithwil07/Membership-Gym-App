@@ -44,7 +44,6 @@ export class AuthService {
     const result: UserResponse = {
       id: existing.id,
       username: existing.username,
-      password: existing.password,
       email: existing.email,
       role: existing.role,
       is_superadmin: existing.is_superadmin,

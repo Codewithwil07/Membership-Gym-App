@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import axios from "axios";
+import api from "@/api/axios";
 
 interface Package {
   id: number;
@@ -22,11 +24,10 @@ export default function PaketTable() {
   const fetchPackages = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:3000/admin/paket", {
-        credentials: "include",
+      const res = await api.get("/admin/paket", {
+        withCredentials: true,
       });
-      const data = await res.json();
-      setPackages(data.data);
+      setPackages(res.data.data);
     } catch (err) {
       console.error(err);
       toast({
@@ -40,33 +41,24 @@ export default function PaketTable() {
   };
 
   const handleDelete = async (id: number) => {
-
     try {
       setDeletingId(id);
-      const res = await fetch(`http://localhost:3000/admin/paket-hapus/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      const data = await res.json();
+      const res = await api.delete(
+        `/admin/paket-hapus/${id}`,
+        { withCredentials: true }
+      );
 
-      if (res.ok) {
-        setPackages((prev) => prev.filter((p) => p.id !== id));
-        toast({
-          title: "Paket berhasil dihapus",
-          description: `Paket ID ${id} telah dihapus.`,
-        });
-      } else {
-        toast({
-          title: "Gagal menghapus paket",
-          description: data.message || "Terjadi kesalahan saat menghapus paket.",
-          variant: "destructive",
-        });
-      }
-    } catch (err) {
+      setPackages((prev) => prev.filter((p) => p.id !== id));
+      toast({
+        title: "Paket berhasil dihapus",
+        description: `Paket ID ${id} telah dihapus.`,
+      });
+    } catch (err: any) {
       console.error(err);
       toast({
-        title: "Error",
-        description: "Terjadi kesalahan saat menghapus paket.",
+        title: "Gagal menghapus paket",
+        description:
+          err?.response?.data?.message || "Terjadi kesalahan saat menghapus paket.",
         variant: "destructive",
       });
     } finally {

@@ -1,6 +1,6 @@
 src/
  ├── api/                             # API client + React Query hooks
- │    ├── axios.ts                    # Axios instance
+ │    ├── api.ts                    # Axios instance
  │    ├── useAuthApi.ts               # API untuk login/register
  │    ├── useMemberApi.ts             # API untuk member (ambil data, update, dsb)
  │    ├── usePaketApi.ts              # API untuk paket membership
