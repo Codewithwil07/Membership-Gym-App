@@ -336,7 +336,7 @@ export default function ReportPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-spotify-card-bg border border-spotify-border text-spotify-text-white rounded-xl shadow-lg">
+            <Card className="bg-spotify-card-bg border mt-5 border-spotify-border text-spotify-text-white rounded-xl shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl">
                   Detail Beban Operasional

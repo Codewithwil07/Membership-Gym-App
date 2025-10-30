@@ -12,23 +12,27 @@ export class LaporanKeuanganService {
       page_beban = 1,
       limit_beban = 10,
     } = query;
+
     const offsetPemasukan = (page_pemasukan - 1) * limit_pemasukan;
     const offsetBeban = (page_beban - 1) * limit_beban;
 
-    const total_pemasukan = await this.laporanRepo.getTotalPemasukan(month);
-    const total_beban = await this.laporanRepo.getTotalBeban(month);
+    // Ambil total pemasukan & beban (basis akrual)
+    const [total_pemasukan, total_beban] = await Promise.all([
+      this.laporanRepo.getTotalPemasukan(month),
+      this.laporanRepo.getTotalBeban(month),
+    ]);
+
     const laba_rugi = total_pemasukan - total_beban;
 
-    const detail_pemasukan = await this.laporanRepo.getDetailPemasukan(
-      month,
-      limit_pemasukan,
-      offsetPemasukan
-    );
-    const detail_beban = await this.laporanRepo.getDetailBeban(
-      month,
-      limit_beban,
-      offsetBeban
-    );
+    // Ambil detail data paginasi
+    const [detail_pemasukan, detail_beban] = await Promise.all([
+      this.laporanRepo.getDetailPemasukan(
+        month,
+        limit_pemasukan,
+        offsetPemasukan
+      ),
+      this.laporanRepo.getDetailBeban(month, limit_beban, offsetBeban),
+    ]);
 
     return {
       total_pemasukan,

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-
+import axios from "axios";
 import { format } from "date-fns";
 import { Loader2, BadgeCheck, Receipt } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,7 +50,7 @@ const PaymentHistoryPage: React.FC = () => {
   if (error) return <p className="text-center text-red-500 mt-10">{error}</p>;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-5 md:p-0">
       <div>
         <h1 className="text-3xl font-bold text-white">
           Riwayat <span className="text-spotify-green">Pembayaran</span>

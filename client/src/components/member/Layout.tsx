@@ -138,7 +138,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
       {/* ======================= */}
       {/* ==  KONTEN HALAMAN   == */}
       {/* ======================= */}
-      <main className="p-4 sm:p-6 pb-24 md:pb-6">{children}</main>
+    <main className="sm:p-10 pb-24 md:pb-6">{children}</main>
     </div>
   );
 };

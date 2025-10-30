@@ -18,7 +18,7 @@ interface PemasukanItem { // Ubah nama interface dari Report menjadi PemasukanIt
 
 // --- UPDATE PROPS AGAR MENERIMA DATA DARI PARENT ---
 export default function ReportTable({
-  filters, // Filters masih bisa diterima jika ada tampilan/logika khusus berdasarkan filter, tapi tidak lagi digunakan untuk filtering data
+  // filters, // Filters masih bisa diterima jika ada tampilan/logika khusus berdasarkan filter, tapi tidak lagi digunakan untuk filtering data
   data, // <<-- Data pemasukan yang sudah difilter dan dipaginasi dari ReportPage
 }: {
   filters: { month: number; year: number; }; // Sesuaikan dengan tipe filter baru

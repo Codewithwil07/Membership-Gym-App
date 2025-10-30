@@ -1,6 +1,6 @@
 // src/pages/AccountPage.tsx
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Card,
@@ -69,7 +69,7 @@ const AccountPage: React.FC = () => {
   }); // backend tidak kirim joinDate, pakai placeholder
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="space-y-6 ">
       <div className="max-w-screen-md mx-auto bg-spotify-card-bg rounded-xl shadow-2xl p-4 space-y-6 md:p-6 md:space-y-8">
         <h1 className="text-2xl md:text-3xl font-bold text-spotify-text-white leading-tight">
           Pengaturan <span className="text-spotify-green">Akun</span>

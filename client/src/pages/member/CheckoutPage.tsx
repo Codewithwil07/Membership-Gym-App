@@ -47,7 +47,7 @@ const CheckoutPage: React.FC = () => {
     setPayLoading(true);
     try {
       const res = await axios.post(
-        "/api/payment/create",
+        "http://localhost:3000/api/payment/create",
         {
           paket_id: pkg.id,
           payment_type: "dana", // atau dynamic
@@ -120,7 +120,15 @@ const CheckoutPage: React.FC = () => {
   if (!pkg) return null;
 
   return (
-    <div className="max-w-lg mx-auto space-y-6">
+    <div className="max-w-lg mx-auto space-y-6 p-5 md:p-0">
+      <div>
+        <h1 className="text-3xl font-bold text-white">
+          Chekcout <span className="text-spotify-green">Now!</span>
+        </h1>
+        <p className="text-spotify-dimmed mt-2">
+          Harap baca dengan seksama sebelum melanjutkan payment dan pilih paket yang paling sesuai dengan kebutuhan Anda.
+        </p>
+      </div>
       <Card className="bg-spotify-card-active border border-spotify-light-border">
         <CardHeader>
           <CardTitle className="text-white">{pkg.nama_paket}</CardTitle>

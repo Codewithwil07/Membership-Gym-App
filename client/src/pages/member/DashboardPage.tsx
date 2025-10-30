@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from "react";
-
 import {
   CalendarCheck,
   ChevronLeft,
@@ -7,8 +6,8 @@ import {
   CheckCircle,
   Clock,
   QrCode,
-  X,
   Download,
+  Dumbbell,
 } from "lucide-react";
 import {
   format,
@@ -131,7 +130,7 @@ const DashboardMember: React.FC = () => {
   }
 
   return (
-    <div className="mx-auto p-10 md:p-0 xl:p-0">
+    <div className="mx-auto p-5 md:p-0 xl:p-0">
       <h1 className="text-2xl md:text-3xl font-bold text-spotify-text-white">
         Selamat Datang,{" "}
         <span className="text-spotify-green">{userProfile.username}!</span>
@@ -139,67 +138,91 @@ const DashboardMember: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 py-10">
         <div className="flex flex-col items-center">
-          {/* Kartu Member */}
+          {/* --- KARTU MEMBER V2: Desain Premium Hitam-Hijau --- */}
           <div
             ref={qrRef}
             className={clsx(
-              "rounded-2xl shadow-xl p-4 text-black relative overflow-hidden",
-              "bg-gradient-to-b from-yellow-100 to-yellow-200 w-72 aspect-[2/3] flex flex-col justify-between items-center"
+              // Ukuran & Bentuk: Landscape seperti kartu kredit/ATM
+              "w-96 aspect-video rounded-2xl",
+
+              // Warna & Latar: Gradient gelap dengan shadow hijau untuk efek premium
+              "bg-gradient-to-br from-gray-900 to-black text-gray-100",
+              "shadow-2xl shadow-green-900/30",
+
+              // Layout & Padding: Flexbox untuk mengatur konten dengan padding
+              "p-5 flex flex-col justify-between",
+
+              // Efek Tambahan: Posisi relatif untuk elemen dekoratif
+              "relative overflow-hidden"
             )}
           >
-            <h1 className="font-bold text-xl">Platinum Gym Member</h1>
-            <div className="w-full flex flex-col items-center mt-3">
-              {userProfile.foto && !imageError ? (
-                <img
-                  src={userProfile.foto}
-                  alt={userProfile.username}
-                  onError={() => setImageError(true)}
-                  className="w-20 h-20 rounded-full object-cover border-4 border-spotify-green"
-                />
-              ) : (
-                <div className="w-20 h-20 rounded-full bg-spotify-green text-black flex items-center justify-center font-bold text-xl uppercase">
-                  {getInitials(userProfile.username)}
+            {/* Elemen Dekoratif: Watermark ikon di latar belakang */}
+            <Dumbbell className="absolute text-white/5 text-[12rem] -right-10 -top-10 rotate-12" />
+
+            {/* Bagian Atas: Judul dan Logo */}
+            <div className="flex justify-between items-start">
+              <h1 className="font-bold text-xl tracking-wide">
+                PLATINUM MEMBER 
+              </h1>
+              <p className="font-semibold text-green-400">PLATINUM GYM</p>
+            </div>
+
+            {/* Bagian Bawah: Konten Utama (Info & QR) */}
+            <div className="flex justify-between items-end">
+              {/* Kiri: Foto dan Detail Member */}
+              <div className="flex items-center gap-4">
+                {userProfile.foto && !imageError ? (
+                  <img
+                    src={userProfile.foto}
+                    alt={userProfile.username}
+                    onError={() => setImageError(true)}
+                    className="w-16 h-16 rounded-full object-cover border-2 border-green-500"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-green-500 text-black flex items-center justify-center font-bold text-2xl uppercase">
+                    {getInitials(userProfile.username)}
+                  </div>
+                )}
+                <div>
+                  <p className="font-semibold text-lg">
+                    {userProfile.username}
+                  </p>
+                  <p className="text-sm font-medium uppercase tracking-widest text-green-400">
+                    {kartuMember ? kartuMember.status : "Status"}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {kartuMember
+                      ? `Berlaku Hingga: ${format(
+                          parseISO(kartuMember.berlaku_sampai),
+                          "dd MMM yyyy",
+                          { locale: idLocale }
+                        )}`
+                      : "Tidak Aktif"}
+                  </p>
                 </div>
-              )}
-              <p className="font-bold text-lg mt-2">{userProfile.username}</p>
-              <p className="text-sm font-medium capitalize">
-                {kartuMember ? kartuMember.status : "-"}
-              </p>
-            </div>
-            <div className="flex justify-center">
-              {kartuMember ? (
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${kartuMember.qr_code}`}
-                  alt="QR Code"
-                  className="w-32 h-32"
-                />
-              ) : (
-                <QrCode size={80} className="text-spotify-green opacity-50" />
-              )}
-            </div>
-            <div className="text-center text-sm mb-3">
-              <p>
-                Kode:{" "}
-                {kartuMember ? kartuMember.qr_code.slice(0, 12) + "..." : "-"}
-              </p>
-              <p>
-                Berlaku:{" "}
-                {kartuMember
-                  ? `${format(
-                      parseISO(kartuMember.berlaku_dari),
-                      "dd MMM yyyy",
-                      {
-                        locale: idLocale,
-                      }
-                    )} - ${format(
-                      parseISO(kartuMember.berlaku_sampai),
-                      "dd MMM yyyy",
-                      {
-                        locale: idLocale,
-                      }
-                    )}`
-                  : "-"}
-              </p>
+              </div>
+
+              {/* Kanan: QR Code */}
+              <div className="flex flex-col items-center gap-2">
+                {kartuMember ? (
+                  <div className="bg-white p-1.5 rounded-lg">
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${kartuMember.qr_code}`}
+                      alt="QR Code"
+                      className="w-20 h-20"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-24 h-24 flex items-center justify-center">
+                    <QrCode size={80} className="text-white opacity-20" />
+                  </div>
+                )}
+                <p className="font-mono text-xs text-gray-500">
+                  {kartuMember
+                    ? kartuMember.qr_code.slice(0, 12) + "..."
+                    : "---"}
+                </p>
+              </div>
             </div>
           </div>
 

@@ -59,7 +59,7 @@ const PackagesPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-8 p-10 md:p-0 xl:p-0">
+    <div className="space-y-8 p-5 md:p-0 xl:p-0">
       <div>
         <h1 className="text-3xl font-bold text-white">
           Pilih <span className="text-spotify-green">Membership</span>
@@ -68,7 +68,7 @@ const PackagesPage: React.FC = () => {
           Pilih paket yang paling sesuai dengan kebutuhan Anda.
         </p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-6 xl:gap-6">
         {packages.map((pkg, index) => {
           const isPopular = index === 1; // contoh: tandai paket kedua sebagai populer
           return (
@@ -76,9 +76,9 @@ const PackagesPage: React.FC = () => {
               key={pkg.id}
               className={`flex flex-col ${isPopular ? "border-yellow-400" : ""} hover:scale-[1.01] hover:duration-300 hover:ease-in-out`}
             >
-              <CardHeader className="relative">
+              <CardHeader className="relative flex flex-col">
                 {isPopular && (
-                  <Badge className="absolute bottom-[85px] left-40 w-fit">PALING POPULER</Badge>
+                  <Badge className="absolute bottom-[85px] self-center w-fit">PALING POPULER</Badge>
                 )}
                 <CardTitle>{pkg.nama_paket}</CardTitle>
                 <CardDescription>{pkg.deskripsi}</CardDescription>

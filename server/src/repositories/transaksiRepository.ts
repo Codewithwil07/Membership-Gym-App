@@ -45,15 +45,40 @@ export class TransaksiRepository {
     );
   }
 
-  async getTotalPemasukan(month: string) {
-    const [rows]: any = await db.query(
-      `SELECT SUM(jumlah_bayar) as total 
-       FROM transaksi_membership 
-       WHERE status = 'paid' AND DATE_FORMAT(created_at, '%Y-%m') = ?`,
-      [month]
-    );
-    return rows[0].total || 0;
+ async getTotalPemasukan(month: string) {
+  const [rows]: any = await db.query(
+    `
+    SELECT 
+      t.jumlah_bayar,
+      t.created_at,
+      p.durasi_hari
+    FROM transaksi_membership t
+    JOIN paket_membership p ON p.id = t.paket_id
+    WHERE t.status = 'paid'
+    `
+  );
+
+  let total = 0;
+
+  for (const row of rows) {
+    const durasiBulan = row.durasi_hari / 30;
+    const start = new Date(row.created_at);
+
+    for (let i = 0; i < durasiBulan; i++) {
+      const m = new Date(start);
+      m.setMonth(m.getMonth() + i);
+
+      const formatted = m.toISOString().slice(0, 7); // YYYY-MM
+      if (formatted === month) {
+        total += row.jumlah_bayar / durasiBulan;
+      }
+    }
   }
+
+  return Math.round(total);
+}
+
+  
 
   async getTotalBeban(month: string) {
     const [rows]: any = await db.query(

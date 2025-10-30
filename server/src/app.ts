@@ -34,8 +34,8 @@ export class App {
     this.app.use(
       cors({
         origin:[
+          "https://membership-gym-app.vercel.app",
           "http://localhost:5173", // atau environment FE kamu
-          "https://membership-gym-app.vercel.app"
         ], 
           credentials: true,
       })
